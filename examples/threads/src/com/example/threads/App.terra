@@ -1,0 +1,12 @@
+package com.example.threads;
+
+use com.terra.thread;
+
+func work(data: string) -> string {
+    return "got " + data;
+}
+
+func main(args: string[]) {
+    var worker = thread_spawn("work", "terra");
+    println(thread_join(worker));
+}

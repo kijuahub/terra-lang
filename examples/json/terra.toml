@@ -1,0 +1,8 @@
+[package]
+name = "json"
+package = "com.example.json"
+version = "0.1.0"
+compiler = "0.1.0"
+
+[tool]
+lang = "en"

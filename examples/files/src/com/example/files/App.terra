@@ -1,0 +1,14 @@
+package com.example.files;
+
+use com.terra.fs;
+use com.terra.os;
+use com.terra.path;
+
+func main(args: string[]) {
+    var root = path_join(os_tmp(), "terra-example-files-" + to_string(os_pid()));
+    fs_mkdir(root);
+    var file = path_join(root, "note.txt");
+    fs_write_text(file, "hello files");
+    println(fs_read_text(file));
+    fs_remove(root);
+}

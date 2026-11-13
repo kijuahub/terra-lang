@@ -1,0 +1,9 @@
+package com.example.regex;
+
+use com.terra.regex;
+
+func main(args: string[]) {
+    println(regex_find("\\d+", "abc123"));
+    println(regex_replace("(\\d)", "a1b2", "[$1]"));
+    println(regex_is_match("Terra", "Hello Terra"));
+}

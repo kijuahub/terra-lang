@@ -1,0 +1,11 @@
+package com.example.httpget;
+
+use com.terra.http;
+
+func main(args: string[]) {
+    if (len(args) == 0) {
+        println("usage: terra run project -- http://host/path");
+        return;
+    }
+    println(http_get(args[0]));
+}

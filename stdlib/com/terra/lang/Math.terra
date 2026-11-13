@@ -1,0 +1,22 @@
+package com.terra.lang;
+
+pub func abs(x: int) -> int {
+    if (x < 0) {
+        return 0 - x;
+    }
+    return x;
+}
+
+pub func min(a: int, b: int) -> int {
+    if (a < b) {
+        return a;
+    }
+    return b;
+}
+
+pub func max(a: int, b: int) -> int {
+    if (a > b) {
+        return a;
+    }
+    return b;
+}

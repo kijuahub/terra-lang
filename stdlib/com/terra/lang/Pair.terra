@@ -1,0 +1,15 @@
+package com.terra.lang;
+
+pub class Pair {
+    pub mut first: int;
+    pub mut second: int;
+
+    pub func Pair(first: int, second: int) {
+        self.first = first;
+        self.second = second;
+    }
+
+    pub func sum() -> int {
+        return self.first + self.second;
+    }
+}

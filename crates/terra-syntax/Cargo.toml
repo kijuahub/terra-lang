@@ -1,0 +1,9 @@
+[package]
+name = "terra-syntax"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Terra lexer, parser, and AST"
+
+[dependencies]
+terra-diagnostics.workspace = true

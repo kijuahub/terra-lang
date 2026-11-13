@@ -1,0 +1,8 @@
+[package]
+name = "terra-diagnostics"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Source locations, diagnostics, and ru/en messages for Terra"
+
+[dependencies]

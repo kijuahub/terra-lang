@@ -1,0 +1,8 @@
+[package]
+name = "threads"
+package = "com.example.threads"
+version = "0.1.0"
+compiler = "0.1.0"
+
+[tool]
+lang = "en"

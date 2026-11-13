@@ -1,0 +1,6 @@
+/target
+target/
+**/*.tbc
+*.exe
+!crates/**/*
+.terra-build/

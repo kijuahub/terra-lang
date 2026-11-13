@@ -1,0 +1,11 @@
+[package]
+name = "terra-sema"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Terra semantic analysis and type checking"
+
+[dependencies]
+terra-diagnostics.workspace = true
+terra-syntax.workspace = true
+terra-bytecode.workspace = true

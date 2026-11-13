@@ -1,0 +1,9 @@
+package com.example.json;
+
+use com.terra.json;
+
+func main(args: string[]) {
+    var doc = json_parse("{\"name\":\"Terra\",\"year\":2026}");
+    println(json_get(doc, "name"));
+    println(json_get(doc, "year"));
+}

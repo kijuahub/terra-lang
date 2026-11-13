@@ -1,0 +1,33 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/terra-diagnostics",
+    "crates/terra-bytecode",
+    "crates/terra-syntax",
+    "crates/terra-sema",
+    "crates/terra-compiler",
+    "crates/terra-runtime",
+    "crates/terra-debugger",
+    "crates/terra-project",
+    "crates/terra-cli",
+    "crates/terra-exec",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+terra-diagnostics = { path = "crates/terra-diagnostics" }
+terra-bytecode = { path = "crates/terra-bytecode" }
+terra-syntax = { path = "crates/terra-syntax" }
+terra-sema = { path = "crates/terra-sema" }
+terra-compiler = { path = "crates/terra-compiler" }
+terra-runtime = { path = "crates/terra-runtime" }
+terra-debugger = { path = "crates/terra-debugger" }
+terra-project = { path = "crates/terra-project" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive"] }
+toml = "0.8"

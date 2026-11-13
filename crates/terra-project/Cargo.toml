@@ -1,0 +1,15 @@
+[package]
+name = "terra-project"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Terra project manager, registry, build, and git"
+
+[dependencies]
+terra-diagnostics.workspace = true
+terra-bytecode.workspace = true
+terra-compiler.workspace = true
+terra-runtime.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true

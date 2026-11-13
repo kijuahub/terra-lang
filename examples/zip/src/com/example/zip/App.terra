@@ -1,0 +1,16 @@
+package com.example.zip;
+
+use com.terra.archive;
+use com.terra.fs;
+use com.terra.os;
+use com.terra.path;
+
+func main(args: string[]) {
+    var z = path_join(os_tmp(), "terra-example-zip-" + to_string(os_pid()) + ".zip");
+    if (fs_exists(z)) {
+        fs_remove(z);
+    }
+    zip_add(z, "a.txt", "alpha");
+    println(zip_read(z, "a.txt"));
+    fs_remove(z);
+}

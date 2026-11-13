@@ -1,0 +1,8 @@
+[package]
+name = "http-server"
+package = "com.example.httpserver"
+version = "0.1.0"
+compiler = "0.1.0"
+
+[tool]
+lang = "en"

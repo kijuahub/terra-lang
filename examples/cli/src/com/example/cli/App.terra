@@ -1,0 +1,11 @@
+package com.example.cli;
+
+func main(args: string[]) {
+    if (len(args) == 0) {
+        println("no-args");
+        return;
+    }
+    for (arg in args) {
+        println(arg);
+    }
+}
