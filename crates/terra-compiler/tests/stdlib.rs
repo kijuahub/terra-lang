@@ -31,38 +31,38 @@ fn math_hash_time_codec_regex_rand() {
         use com.terra.regex;
         use com.terra.rand;
         func main(args: string[]) {
-            println(math_sqrt(9.0));
-            println(math_pow(2.0, 3.0));
-            println(math_floor(3.7));
-            println(math_abs(-2.5));
-            println(math_min(2.0, 5.0));
-            println(math_pi() > 3.0);
+            println(math.sqrt(9.0));
+            println(math.pow(2.0, 3.0));
+            println(math.floor(3.7));
+            println(math.abs(-2.5));
+            println(math.min(2.0, 5.0));
+            println(math.pi() > 3.0);
             try {
-                math_sqrt(-1.0);
+                math.sqrt(-1.0);
                 println("nan");
             } exception (e: IoError) {
                 println("domain");
             }
-            println(hash_sha256("hi"));
-            println(hash_sha1("hi"));
-            println(hash_md5("hi"));
-            println(hash_fnv("hi"));
-            println(time_parse("1970-01-01T00:00:00Z"));
-            println(time_format(0, "YYYY-MM-DD hh:mm:ss"));
-            println(time_add(0, 1500));
-            println(time_parts(0));
-            println(b64_encode("hi"));
-            println(b64_decode("aGk="));
-            println(regex_is_match("\\d+", "abc123"));
-            println(regex_find("\\d+", "abc123"));
-            println(regex_find_all("[a-z]+", "ab 12 cd"));
-            println(regex_replace("(\\d)", "a1b2", "[$1]"));
-            println(regex_split(",", "a,b,c"));
-            rand_seed(7);
-            var a = rand_int(0, 1000);
-            var f = rand_float();
-            rand_seed(7);
-            var b = rand_int(0, 1000);
+            println(hash.sha256("hi"));
+            println(hash.sha1("hi"));
+            println(hash.md5("hi"));
+            println(hash.fnv("hi"));
+            println(time.parse("1970-01-01T00:00:00Z"));
+            println(time.format(0, "YYYY-MM-DD hh:mm:ss"));
+            println(time.add(0, 1500));
+            println(time.parts(0));
+            println(codec.encode("hi"));
+            println(codec.decode("aGk="));
+            println(regex.is_match("\\d+", "abc123"));
+            println(regex.find("\\d+", "abc123"));
+            println(regex.find_all("[a-z]+", "ab 12 cd"));
+            println(regex.replace("(\\d)", "a1b2", "[$1]"));
+            println(regex.split(",", "a,b,c"));
+            rand.seed(7);
+            var a = rand.int(0, 1000);
+            var f = rand.float();
+            rand.seed(7);
+            var b = rand.int(0, 1000);
             println(a == b);
             println(a >= 0 && a <= 1000);
             println(f >= 0.0 && f < 1.0);
@@ -110,43 +110,43 @@ fn collections() {
         use com.terra.queue;
         use com.terra.map;
         func main(args: string[]) {
-            var xs = list_new();
-            list_push(xs, "a");
-            list_push(xs, "b");
-            println(list_len(xs));
-            println(list_get(xs, 0));
-            list_set(xs, 1, "c");
-            println(list_pop(xs));
-            println(list_remove(xs, 0));
-            list_push(xs, "z");
-            list_clear(xs);
-            println(list_len(xs));
-            var s = set_new();
-            set_add(s, "a");
-            set_add(s, "a");
-            println(set_len(s));
-            println(set_has(s, "a"));
-            set_remove(s, "a");
-            println(set_has(s, "a"));
-            var st = stack_new();
-            stack_push(st, "x");
-            stack_push(st, "y");
-            println(stack_peek(st));
-            println(stack_pop(st));
-            println(stack_len(st));
-            var q = queue_new();
-            queue_push(q, "p");
-            queue_push(q, "q");
-            println(queue_pop(q));
-            println(queue_len(q));
-            var m = map_new();
-            map_set(m, "k", "v");
-            println(map_has(m, "k"));
-            println(map_get(m, "k"));
-            println(map_get(m, "no"));
-            println(list_get(map_keys(m), 0));
-            map_remove(m, "k");
-            println(map_len(m));
+            var xs = list.new();
+            list.push(xs, "a");
+            list.push(xs, "b");
+            println(list.len(xs));
+            println(list.get(xs, 0));
+            list.set(xs, 1, "c");
+            println(list.pop(xs));
+            println(list.remove(xs, 0));
+            list.push(xs, "z");
+            list.clear(xs);
+            println(list.len(xs));
+            var s = set.new();
+            set.add(s, "a");
+            set.add(s, "a");
+            println(set.len(s));
+            println(set.has(s, "a"));
+            set.remove(s, "a");
+            println(set.has(s, "a"));
+            var st = stack.new();
+            stack.push(st, "x");
+            stack.push(st, "y");
+            println(stack.peek(st));
+            println(stack.pop(st));
+            println(stack.len(st));
+            var q = queue.new();
+            queue.push(q, "p");
+            queue.push(q, "q");
+            println(queue.pop(q));
+            println(queue.len(q));
+            var m = map.new();
+            map.set(m, "k", "v");
+            println(map.has(m, "k"));
+            println(map.get(m, "k"));
+            println(map.get(m, "no"));
+            println(list.get(map.keys(m), 0));
+            map.remove(m, "k");
+            println(map.len(m));
         }
         "#,
     ));
@@ -164,26 +164,26 @@ fn json_xml_yaml() {
         use com.terra.xml;
         use com.terra.yaml;
         func main(args: string[]) {
-            var doc = json_parse("{\"name\":\"Terra\",\"n\":3,\"ok\":true}");
-            println(json_kind(doc));
-            println(json_get(doc, "name"));
-            println(json_get(doc, "n"));
-            println(json_get(doc, "ok"));
-            println(json_get(doc, "missing"));
-            json_set(doc, "name", "Lang");
-            println(json_stringify(doc));
-            var arr = json_parse("[1,2]");
-            json_push(arr, 3);
-            println(json_len(arr));
-            println(json_index(arr, 2));
-            var xml = xml_parse("<note id=\"1\">hi</note>");
-            println(json_get(xml, "tag"));
-            println(json_get(xml, "text"));
-            println(json_get(json_get(xml, "attrs"), "id"));
-            println(xml_stringify(xml));
-            var y = yaml_parse("name: Terra\nn: 4\n");
-            println(json_get(y, "name"));
-            println(json_get(y, "n"));
+            var doc = json.parse("{\"name\":\"Terra\",\"n\":3,\"ok\":true}");
+            println(json.kind(doc));
+            println(json.get(doc, "name"));
+            println(json.get(doc, "n"));
+            println(json.get(doc, "ok"));
+            println(json.get(doc, "missing"));
+            json.set(doc, "name", "Lang");
+            println(json.stringify(doc));
+            var arr = json.parse("[1,2]");
+            json.push(arr, 3);
+            println(json.len(arr));
+            println(json.index(arr, 2));
+            var xml = xml.parse("<note id=\"1\">hi</note>");
+            println(json.get(xml, "tag"));
+            println(json.get(xml, "text"));
+            println(json.get(json.get(xml, "attrs"), "id"));
+            println(xml.stringify(xml));
+            var y = yaml.parse("name: Terra\nn: 4\n");
+            println(json.get(y, "name"));
+            println(json.get(y, "n"));
         }
         "#,
     ));
@@ -217,48 +217,48 @@ fn files_env_os_path_and_process() {
         use com.terra.list;
         use com.terra.codec;
         func main(args: string[]) {
-            var root = path_join(os_tmp(), "terra-fs-" + to_string(os_pid()));
-            fs_mkdir(root);
-            var file = path_join(root, "note.txt");
-            fs_write_text(file, "hi");
-            fs_append_text(file, "!");
-            println(fs_read_text(file));
-            println(fs_exists(file));
-            println(fs_is_file(file));
-            println(fs_is_dir(root));
-            println(fs_size(file));
-            println(path_name(file));
-            println(path_ext(file));
-            var copy = path_join(root, "copy.txt");
-            fs_copy(file, copy);
-            var moved = path_join(root, "moved.txt");
-            fs_rename(copy, moved);
-            println(fs_read_text(moved));
-            fs_write_base64(path_join(root, "b.txt"), b64_encode("Z"));
-            println(fs_read_text(path_join(root, "b.txt")));
-            println(fs_read_base64(file));
-            println(fs_list(root));
-            fs_remove(root);
-            println(fs_exists(root));
-            env_set("TERRA_STDLIB_PROBE", "yes");
-            println(env_get("TERRA_STDLIB_PROBE"));
-            println(env_has("TERRA_STDLIB_PROBE"));
-            env_remove("TERRA_STDLIB_PROBE");
-            println(env_has("TERRA_STDLIB_PROBE"));
-            println(os_name());
-            println(os_pid() > 0);
-            println(list_len(os_args()));
-            println(list_get(os_args(), 0));
+            var root = path.join(os.tmp(), "terra-fs-" + to_string(os.pid()));
+            fs.mkdir(root);
+            var file = path.join(root, "note.txt");
+            fs.write_text(file, "hi");
+            fs.append_text(file, "!");
+            println(fs.read_text(file));
+            println(fs.exists(file));
+            println(fs.is_file(file));
+            println(fs.is_dir(root));
+            println(fs.size(file));
+            println(path.name(file));
+            println(path.ext(file));
+            var copy = path.join(root, "copy.txt");
+            fs.copy(file, copy);
+            var moved = path.join(root, "moved.txt");
+            fs.rename(copy, moved);
+            println(fs.read_text(moved));
+            fs.write_base64(path.join(root, "b.txt"), codec.encode("Z"));
+            println(fs.read_text(path.join(root, "b.txt")));
+            println(fs.read_base64(file));
+            println(fs.list(root));
+            fs.remove(root);
+            println(fs.exists(root));
+            env.set("TERRA_STDLIB_PROBE", "yes");
+            println(env.get("TERRA_STDLIB_PROBE"));
+            println(env.has("TERRA_STDLIB_PROBE"));
+            env.remove("TERRA_STDLIB_PROBE");
+            println(env.has("TERRA_STDLIB_PROBE"));
+            println(os.name());
+            println(os.pid() > 0);
+            println(list.len(os.args()));
+            println(list.get(os.args(), 0));
             mut cmd: string = "sh";
             mut flag: string = "-c";
-            if (os_name() == "windows") {
+            if (os.name() == "windows") {
                 cmd = "cmd";
                 flag = "/c";
             }
-            var pargs = list_new();
-            list_push(pargs, flag);
-            list_push(pargs, "echo hi");
-            println(proc_output(cmd, pargs));
+            var pargs = list.new();
+            list.push(pargs, flag);
+            list.push(pargs, "echo hi");
+            println(proc.output(cmd, pargs));
         }
         "#,
         &["alpha"],
@@ -281,32 +281,32 @@ fn sqlite_and_zip() {
         use com.terra.os;
         use com.terra.path;
         func main(args: string[]) {
-            var dbpath = path_join(os_tmp(), "terra-sql-" + to_string(os_pid()) + ".db");
-            if (fs_exists(dbpath)) {
-                fs_remove(dbpath);
+            var dbpath = path.join(os.tmp(), "terra-sql-" + to_string(os.pid()) + ".db");
+            if (fs.exists(dbpath)) {
+                fs.remove(dbpath);
             }
-            var db = sqlite_open(dbpath);
-            sqlite_exec(db, "create table notes(body text); insert into notes(body) values ('hello');");
-            println(sqlite_query(db, "select body from notes"));
-            sqlite_close(db);
-            fs_remove(dbpath);
-            var z = path_join(os_tmp(), "terra-zip-" + to_string(os_pid()) + ".zip");
-            if (fs_exists(z)) {
-                fs_remove(z);
+            var db = sqlite.open(dbpath);
+            sqlite.exec(db, "create table notes(body text); insert into notes(body) values ('hello');");
+            println(sqlite.query(db, "select body from notes"));
+            sqlite.close(db);
+            fs.remove(dbpath);
+            var z = path.join(os.tmp(), "terra-zip-" + to_string(os.pid()) + ".zip");
+            if (fs.exists(z)) {
+                fs.remove(z);
             }
-            zip_add(z, "a.txt", "alpha");
-            zip_add(z, "b.txt", "beta");
-            println(zip_list(z));
-            println(zip_read(z, "a.txt"));
-            var dest = path_join(os_tmp(), "terra-zip-out-" + to_string(os_pid()));
-            if (fs_exists(dest)) {
-                fs_remove(dest);
+            archive.add(z, "a.txt", "alpha");
+            archive.add(z, "b.txt", "beta");
+            println(archive.list(z));
+            println(archive.read(z, "a.txt"));
+            var dest = path.join(os.tmp(), "terra-zip-out-" + to_string(os.pid()));
+            if (fs.exists(dest)) {
+                fs.remove(dest);
             }
-            fs_mkdir(dest);
-            zip_extract(z, dest);
-            println(fs_read_text(path_join(dest, "b.txt")));
-            fs_remove(z);
-            fs_remove(dest);
+            fs.mkdir(dest);
+            archive.extract(z, dest);
+            println(fs.read_text(path.join(dest, "b.txt")));
+            fs.remove(z);
+            fs.remove(dest);
         }
         "#,
     ));
@@ -323,22 +323,22 @@ fn threads_and_tcp() {
             return "got " + data;
         }
         func client(data: string) -> string {
-            var sock = tcp_connect("127.0.0.1", to_int(data));
-            tcp_send(sock, "ping");
-            tcp_close(sock);
+            var sock = net.connect("127.0.0.1", to_int(data));
+            net.send(sock, "ping");
+            net.close(sock);
             return "sent";
         }
         func main(args: string[]) {
-            var worker = thread_spawn("work", "terra");
-            println(thread_join(worker));
-            var listener = tcp_listen(0);
-            var port = tcp_port(listener);
-            var peer = thread_spawn("client", to_string(port));
-            var sock = tcp_accept(listener);
-            println(tcp_recv(sock, 16));
-            tcp_close(sock);
-            tcp_close(listener);
-            println(thread_join(peer));
+            var worker = thread.spawn("work", "terra");
+            println(thread.join(worker));
+            var listener = net.listen(0);
+            var port = net.port(listener);
+            var peer = thread.spawn("client", to_string(port));
+            var sock = net.accept(listener);
+            println(net.recv(sock, 16));
+            net.close(sock);
+            net.close(listener);
+            println(thread.join(peer));
         }
         "#,
     ));
@@ -357,33 +357,33 @@ fn http_client_and_server() {
             return "201 text/plain\n" + path;
         }
         func serve(data: string) -> string {
-            http_serve_n(to_int(data), "page", 1);
+            http.serve_n(to_int(data), "page", 1);
             return "served";
         }
         func main(args: string[]) {
             try {
-                http_get("https://example.com");
+                http.get("https://example.com");
                 println("https-yes");
             } exception (e: IoError) {
                 println("https-no");
             }
-            var listener = tcp_listen(0);
-            var port = tcp_port(listener);
-            tcp_close(listener);
-            var worker = thread_spawn("serve", to_string(port));
+            var listener = net.listen(0);
+            var port = net.port(listener);
+            net.close(listener);
+            var worker = thread.spawn("serve", to_string(port));
             mut i: int = 0;
             mut body: string = "";
             while (i < 50) {
                 try {
-                    body = http_get("http://127.0.0.1:" + to_string(port) + "/ping");
+                    body = http.get("http://127.0.0.1:" + to_string(port) + "/ping");
                     i = 50;
                 } exception (e: IoError) {
-                    os_sleep(50);
+                    os.sleep(50);
                     i = i + 1;
                 }
             }
             println(body);
-            println(thread_join(worker));
+            println(thread.join(worker));
         }
         "#,
     ));
@@ -402,9 +402,75 @@ fn examples_run() {
         (include_str!("../../../examples/threads/src/com/example/threads/App.terra"), &[], "got terra"),
         (include_str!("../../../examples/zip/src/com/example/zip/App.terra"), &[], "alpha"),
         (include_str!("../../../examples/regex/src/com/example/regex/App.terra"), &[], "123\na[1]b[2]\ntrue"),
+        (include_str!("../../../examples/cafe/src/com/example/cafe/App.terra"), &[], "usage: terra run project -- serve 8080"),
+        (include_str!("../../../examples/calculator/src/com/example/calculator/App.terra"), &[], "usage: terra run project -- serve 8081"),
+        (include_str!("../../../examples/ledger/src/com/example/ledger/App.terra"), &[], "usage: terra run project -- serve 8082"),
     ];
     for (src, args, expect) in cases {
         let out = ok(run_args(src, args));
         assert!(out.contains(expect), "expected {expect} in {out}");
     }
+}
+
+#[test]
+fn calculator_and_ledger() {
+    let calc = ok(run_args(
+        include_str!("../../../examples/calculator/src/com/example/calculator/App.terra"),
+        &["check"],
+    ));
+    assert_eq!(calc, "10");
+    let book = ok(run_args(
+        include_str!("../../../examples/ledger/src/com/example/ledger/App.terra"),
+        &["check"],
+    ));
+    assert!(book.contains("Mina"), "{book}");
+    assert!(book.contains("mina@ledger.test"), "{book}");
+}
+
+#[test]
+fn ui_page_roundtrip() {
+    let out = ok(run(
+        r#"
+        use com.terra.ui;
+        use com.terra.http;
+        use com.terra.net;
+        use com.terra.thread;
+        use com.terra.os;
+        func view(state: string) -> any {
+            return ui.page("North & Bean", "roast", ui.col([
+                ui.h1("Coffee, poured slowly."),
+                ui.button("Hold", "hold")
+            ]), state);
+        }
+        func serve(data: string) -> string {
+            ui.serve_n(to_int(data), "view", 2);
+            return "served";
+        }
+        func main(args: string[]) {
+            var listener = net.listen(0);
+            var port = net.port(listener);
+            net.close(listener);
+            var worker = thread.spawn("serve", to_string(port));
+            mut i = 0;
+            mut body = "";
+            while (i < 50) {
+                try {
+                    body = http.get("http://127.0.0.1:" + to_string(port) + "/");
+                    i = 50;
+                } exception (e: IoError) {
+                    os.sleep(50);
+                    i = i + 1;
+                }
+            }
+            println(body);
+            println(http.text("POST", "http://127.0.0.1:" + to_string(port) + "/_ui", "application/json", "{\"action\":\"hold\",\"form\":{},\"state\":\"{}\"}"));
+            println(thread.join(worker));
+        }
+        "#,
+    ));
+    assert!(out.contains("Coffee, poured slowly."), "{out}");
+    assert!(out.contains("Inter"), "{out}");
+    assert!(out.contains("data-theme=\"roast\""), "{out}");
+    assert!(out.contains("hold"), "{out}");
+    assert!(out.contains("served"), "{out}");
 }

@@ -9,6 +9,7 @@
 //! when checked float semantics are required.
 
 mod hostcall;
+mod ui;
 
 use std::collections::HashMap;
 

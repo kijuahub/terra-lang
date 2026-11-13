@@ -1,0 +1,199 @@
+package com.example.calculator;
+
+use com.terra.ui;
+use com.terra.json;
+use com.terra.regex;
+
+func slot(doc: any, key: string, fallback: string) -> string {
+    var value = to_string(json.get(doc, key));
+    if (value == "null" || value == "") {
+        return fallback;
+    }
+    return value;
+}
+
+func trim_num(value: string) -> string {
+    if (regex.is_match("\\.0$", value)) {
+        return regex.replace("\\.0$", value, "");
+    }
+    return value;
+}
+
+func apply(left: string, op: string, right: string) -> string {
+    if (left == "Error" || right == "Error") {
+        return "Error";
+    }
+    var a = to_double(left);
+    var b = to_double(right);
+    mut n = 0.0;
+    if (op == "+") {
+        n = a + b;
+    }
+    if (op == "-") {
+        n = a - b;
+    }
+    if (op == "*") {
+        n = a * b;
+    }
+    if (op == "/") {
+        if (b == 0.0) {
+            return "Error";
+        }
+        n = a / b;
+    }
+    return trim_num(to_string(n));
+}
+
+func op_of(action: string) -> string {
+    if (action == "add") {
+        return "+";
+    }
+    if (action == "sub") {
+        return "-";
+    }
+    if (action == "mul") {
+        return "*";
+    }
+    if (action == "div") {
+        return "/";
+    }
+    return "";
+}
+
+func reduce(state: string) -> string {
+    var doc = json.parse(state);
+    var action = slot(doc, "action", "");
+    mut display = slot(doc, "display", "0");
+    mut acc = slot(doc, "acc", "0");
+    mut op = slot(doc, "op", "");
+    mut fresh = slot(doc, "fresh", "1");
+    if (action == "clear") {
+        display = "0";
+        acc = "0";
+        op = "";
+        fresh = "1";
+    } else if (action == "sign") {
+        if (regex.is_match("^-", display)) {
+            display = regex.replace("^-", display, "");
+        } else if (display != "0" && display != "Error") {
+            display = "-" + display;
+        }
+    } else if (action == "percent") {
+        if (display != "Error") {
+            display = trim_num(to_string(to_double(display) / 100.0));
+            fresh = "1";
+        }
+    } else if (action == "dot") {
+        if (fresh == "1" || display == "Error") {
+            display = "0.";
+            fresh = "0";
+        } else if (!regex.is_match("\\.", display)) {
+            display = display + ".";
+        }
+    } else if (regex.is_match("^[0-9]$", action)) {
+        if (fresh == "1" || display == "0" || display == "Error") {
+            display = action;
+            fresh = "0";
+        } else {
+            display = display + action;
+        }
+    } else if (action == "add" || action == "sub" || action == "mul" || action == "div") {
+        var next = op_of(action);
+        if (op != "" && fresh == "0") {
+            display = apply(acc, op, display);
+            acc = display;
+        } else {
+            acc = display;
+        }
+        op = next;
+        fresh = "1";
+    } else if (action == "eq") {
+        if (op != "") {
+            display = apply(acc, op, display);
+            acc = display;
+            op = "";
+            fresh = "1";
+        }
+    }
+    json.set(doc, "display", display);
+    json.set(doc, "acc", acc);
+    json.set(doc, "op", op);
+    json.set(doc, "fresh", fresh);
+    return json.stringify(doc);
+}
+
+func with_action(state: string, action: string) -> string {
+    var doc = json.parse(state);
+    json.set(doc, "action", action);
+    return json.stringify(doc);
+}
+
+func hint_of(op: string, display: string) -> string {
+    if (display == "Error") {
+        return "Cannot divide by zero";
+    }
+    if (op == "+") {
+        return "Adding";
+    }
+    if (op == "-") {
+        return "Subtracting";
+    }
+    if (op == "*") {
+        return "Multiplying";
+    }
+    if (op == "/") {
+        return "Dividing";
+    }
+    return "Ready";
+}
+
+func view(state: string) -> any {
+    var next = reduce(state);
+    var doc = json.parse(next);
+    var display = slot(doc, "display", "0");
+    var op = slot(doc, "op", "");
+    var body = ui.device([
+        ui.kicker("Terra"),
+        ui.muted(hint_of(op, display)),
+        ui.screen(display),
+        ui.keys([
+            ui.key("AC", "clear", "quiet"),
+            ui.key("±", "sign", "quiet"),
+            ui.key("%", "percent", "quiet"),
+            ui.key("÷", "div", "op"),
+            ui.key("7", "7", "digit"),
+            ui.key("8", "8", "digit"),
+            ui.key("9", "9", "digit"),
+            ui.key("×", "mul", "op"),
+            ui.key("4", "4", "digit"),
+            ui.key("5", "5", "digit"),
+            ui.key("6", "6", "digit"),
+            ui.key("−", "sub", "op"),
+            ui.key("1", "1", "digit"),
+            ui.key("2", "2", "digit"),
+            ui.key("3", "3", "digit"),
+            ui.key("+", "add", "op"),
+            ui.key("0", "0", "wide"),
+            ui.key(".", "dot", "digit"),
+            ui.key("=", "eq", "eq")
+        ])
+    ]);
+    return ui.page("Calculator", "instrument", body, next);
+}
+
+func main(args: string[]) {
+    if (len(args) == 1 && args[0] == "check") {
+        mut s = "{\"display\":\"0\",\"acc\":\"0\",\"op\":\"\",\"fresh\":\"1\"}";
+        s = reduce(with_action(s, "7"));
+        s = reduce(with_action(s, "add"));
+        s = reduce(with_action(s, "3"));
+        s = reduce(with_action(s, "eq"));
+        println(json.get(json.parse(s), "display"));
+        return;
+    }
+    if (len(args) < 2 || args[0] != "serve") {
+        println("usage: terra run project -- serve 8081");
+        return;
+    }
+    ui.serve(to_int(args[1]), "view");
+}

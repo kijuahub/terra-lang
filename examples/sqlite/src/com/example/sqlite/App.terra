@@ -6,13 +6,13 @@ use com.terra.os;
 use com.terra.path;
 
 func main(args: string[]) {
-    var dbpath = path_join(os_tmp(), "terra-example-sql-" + to_string(os_pid()) + ".db");
-    if (fs_exists(dbpath)) {
-        fs_remove(dbpath);
+    var dbpath = path.join(os.tmp(), "terra-example-sql-" + to_string(os.pid()) + ".db");
+    if (fs.exists(dbpath)) {
+        fs.remove(dbpath);
     }
-    var db = sqlite_open(dbpath);
-    sqlite_exec(db, "create table notes(body text); insert into notes(body) values ('hello');");
-    println(sqlite_query(db, "select body from notes"));
-    sqlite_close(db);
-    fs_remove(dbpath);
+    var db = sqlite.open(dbpath);
+    sqlite.exec(db, "create table notes(body text); insert into notes(body) values ('hello');");
+    println(sqlite.query(db, "select body from notes"));
+    sqlite.close(db);
+    fs.remove(dbpath);
 }

@@ -7,6 +7,6 @@ func work(data: string) -> string {
 }
 
 func main(args: string[]) {
-    var worker = thread_spawn("work", "terra");
-    println(thread_join(worker));
+    var worker = thread.spawn("work", "terra");
+    println(thread.join(worker));
 }

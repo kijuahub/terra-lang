@@ -5,10 +5,10 @@ use com.terra.os;
 use com.terra.path;
 
 func main(args: string[]) {
-    var root = path_join(os_tmp(), "terra-example-files-" + to_string(os_pid()));
-    fs_mkdir(root);
-    var file = path_join(root, "note.txt");
-    fs_write_text(file, "hello files");
-    println(fs_read_text(file));
-    fs_remove(root);
+    var root = path.join(os.tmp(), "terra-example-files-" + to_string(os.pid()));
+    fs.mkdir(root);
+    var file = path.join(root, "note.txt");
+    fs.write_text(file, "hello files");
+    println(fs.read_text(file));
+    fs.remove(root);
 }

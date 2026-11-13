@@ -1,8 +1,8 @@
 const KEYS = new Set("class interface extends implements super self override pub priv static final const var mut enum try exception throw if else match loop while for in break continue func return async await true false do package use new delete null".split(" "));
 
 const UI = {
-  en: { search: "Search", api: "Standard library", missing: "api.json is missing, so the function list cannot be shown.", empty: "Nothing matches." },
-  ru: { search: "Поиск", api: "Стандартная библиотека", missing: "Нет файла api.json, список функций не показан.", empty: "Ничего не найдено." },
+  en: { search: "Search", api: "Standard library", missing: "api.js did not load, so the function list cannot be shown.", empty: "Nothing matches." },
+  ru: { search: "Поиск", api: "Стандартная библиотека", missing: "api.js не загрузился, список функций не показан.", empty: "Ничего не найдено." },
 };
 
 const SECTIONS = [
@@ -18,8 +18,8 @@ const SECTIONS = [
 use com.terra.fs;
 
 func main(args: string[]) {
-    fs_write_text("note.txt", "hi");
-    println(fs_read_text("note.txt"));
+    fs.write_text("note.txt", "hi");
+    println(fs.read_text("note.txt"));
 }</pre>
 <p>Build the compiler from the repository, then run a file or a project:</p>
 <pre>cargo build -p terra-cli
@@ -34,8 +34,8 @@ cd examples\\files
 use com.terra.fs;
 
 func main(args: string[]) {
-    fs_write_text("note.txt", "hi");
-    println(fs_read_text("note.txt"));
+    fs.write_text("note.txt", "hi");
+    println(fs.read_text("note.txt"));
 }</pre>
 <p>Соберите компилятор из репозитория и запустите файл или проект:</p>
 <pre>cargo build -p terra-cli
@@ -162,7 +162,7 @@ func main(args: string[]) {
     ru: "Операторы",
     body: {
       en: `<h2>Operators</h2>
-<p>Arithmetic: <code>+ - * / %</code>. Comparison: <code>== != &lt; &lt;= &gt; &gt;=</code>. Logic: <code>&amp;&amp; || !</code>. Assignment is <code>=</code>. A range is <code>0..10</code>. Indexing is <code>args[0]</code>. Member access is <code>value.field</code> and <code>value.method()</code>. A qualified call is <code>com.terra.fs.fs_read_text("a")</code>.</p>
+<p>Arithmetic: <code>+ - * / %</code>. Comparison: <code>== != &lt; &lt;= &gt; &gt;=</code>. Logic: <code>&amp;&amp; || !</code>. Assignment is <code>=</code>. A range is <code>0..10</code>. Indexing is <code>args[0]</code>. Member access is <code>value.field</code> and <code>value.method()</code>. A qualified call is <code>com.terra.fs.read_text("a")</code>.</p>
 <p><code>if</code>, <code>while</code>, and <code>do</code>/<code>while</code> take a boolean. <code>for</code> walks an array or a range, and the C form <code>for (mut i: int = 0; i &lt; n; i = i + 1)</code> is also accepted. <code>loop</code> repeats until <code>break</code>. <code>match</code> compares compile-time constants and <code>_</code>. An enum match is exhaustive or ends with <code>_</code>.</p>
 <pre>func main(args: string[]) {
     mut sum: int = 0;
@@ -178,7 +178,7 @@ func main(args: string[]) {
     }
 }</pre>`,
       ru: `<h2>Операторы</h2>
-<p>Арифметика: <code>+ - * / %</code>. Сравнение: <code>== != &lt; &lt;= &gt; &gt;=</code>. Логика: <code>&amp;&amp; || !</code>. Присваивание — <code>=</code>. Диапазон — <code>0..10</code>. Индекс — <code>args[0]</code>. Поле и метод — <code>value.field</code> и <code>value.method()</code>. Квалифицированный вызов — <code>com.terra.fs.fs_read_text("a")</code>.</p>
+<p>Арифметика: <code>+ - * / %</code>. Сравнение: <code>== != &lt; &lt;= &gt; &gt;=</code>. Логика: <code>&amp;&amp; || !</code>. Присваивание — <code>=</code>. Диапазон — <code>0..10</code>. Индекс — <code>args[0]</code>. Поле и метод — <code>value.field</code> и <code>value.method()</code>. Квалифицированный вызов — <code>com.terra.fs.read_text("a")</code>.</p>
 <p><code>if</code>, <code>while</code> и <code>do</code>/<code>while</code> ждут логическое условие. <code>for</code> обходит массив или диапазон; форма <code>for (mut i: int = 0; i &lt; n; i = i + 1)</code> тоже принимается. <code>loop</code> повторяется до <code>break</code>. <code>match</code> сравнивает константы времени компиляции и <code>_</code>. Сопоставление с перечислением исчерпывающее или заканчивается <code>_</code>.</p>
 <pre>func main(args: string[]) {
     mut sum: int = 0;
@@ -201,7 +201,7 @@ func main(args: string[]) {
     ru: "Функции",
     body: {
       en: `<h2>Functions</h2>
-<p>A function is <code>func name(args) -&gt; Type { }</code>. The return type may be omitted. There is no overloading: one name, one function. Functions are not values, so they cannot be stored or passed except by the string name that <code>thread_spawn</code> and <code>http_serve</code> look up.</p>
+<p>A function is <code>func name(args) -&gt; Type { }</code>. The return type may be omitted. There is no overloading: one name, one function. Functions are not values, so they cannot be stored or passed except by the string name that <code>thread.spawn</code> and <code>http.serve</code> look up.</p>
 <pre>func clamp(n: int, lo: int, hi: int) -> int {
     if (n &lt; lo) {
         return lo;
@@ -213,7 +213,7 @@ func main(args: string[]) {
 }</pre>
 <p>Names of free functions in the module are their simple names. A method name seen by the host is <code>Class.method</code>.</p>`,
       ru: `<h2>Функции</h2>
-<p>Функция — <code>func name(args) -&gt; Type { }</code>. Тип возврата можно не писать. Перегрузки нет: одно имя, одна функция. Функции не являются значениями: их нельзя сохранить или передать, кроме строкового имени, которое ищут <code>thread_spawn</code> и <code>http_serve</code>.</p>
+<p>Функция — <code>func name(args) -&gt; Type { }</code>. Тип возврата можно не писать. Перегрузки нет: одно имя, одна функция. Функции не являются значениями: их нельзя сохранить или передать, кроме строкового имени, которое ищут <code>thread.spawn</code> и <code>http.serve</code>.</p>
 <pre>func clamp(n: int, lo: int, hi: int) -> int {
     if (n &lt; lo) {
         return lo;
@@ -399,7 +399,7 @@ func main(args: string[]) {
     ru: "Потоки",
     body: {
       en: `<h2>Threads</h2>
-<p><code>thread_spawn</code> runs <code>func name(data: string) -&gt; string</code> on a new operating-system thread and returns a handle. <code>thread_join</code> waits and returns that string. Each worker gets a fresh virtual machine, so a host call does not re-enter the paused frame. The payload is a string. There is no shared heap.</p>
+<p><code>thread.spawn</code> runs <code>func name(data: string) -&gt; string</code> on a new operating-system thread and returns a handle. <code>thread.join</code> waits and returns that string. Each worker gets a fresh virtual machine, so a host call does not re-enter the paused frame. The payload is a string. There is no shared heap.</p>
 <pre>use com.terra.thread;
 
 func work(data: string) -> string {
@@ -407,12 +407,12 @@ func work(data: string) -> string {
 }
 
 func main(args: string[]) {
-    var worker = thread_spawn("work", "terra");
-    println(thread_join(worker));
+    var worker = thread.spawn("work", "terra");
+    println(thread.join(worker));
 }</pre>
-<p><code>thread_sleep</code> pauses the current thread for a number of milliseconds. <code>thread_id</code> returns a number derived from the operating-system thread id. <code>os_sleep</code> does the same pause through the <code>com.terra.os</code> package.</p>`,
+<p><code>thread.sleep</code> pauses the current thread for a number of milliseconds. <code>thread.id</code> returns a number derived from the operating-system thread id. <code>os.sleep</code> does the same pause through the <code>com.terra.os</code> package.</p>`,
       ru: `<h2>Потоки</h2>
-<p><code>thread_spawn</code> запускает <code>func name(data: string) -&gt; string</code> в новом потоке операционной системы и возвращает дескриптор. <code>thread_join</code> ждёт и возвращает эту строку. У работника своя виртуальная машина, поэтому вызов хоста не входит повторно в приостановленный кадр. Полезная нагрузка — строка. Общей кучи нет.</p>
+<p><code>thread.spawn</code> запускает <code>func name(data: string) -&gt; string</code> в новом потоке операционной системы и возвращает дескриптор. <code>thread.join</code> ждёт и возвращает эту строку. У работника своя виртуальная машина, поэтому вызов хоста не входит повторно в приостановленный кадр. Полезная нагрузка — строка. Общей кучи нет.</p>
 <pre>use com.terra.thread;
 
 func work(data: string) -> string {
@@ -420,10 +420,10 @@ func work(data: string) -> string {
 }
 
 func main(args: string[]) {
-    var worker = thread_spawn("work", "terra");
-    println(thread_join(worker));
+    var worker = thread.spawn("work", "terra");
+    println(thread.join(worker));
 }</pre>
-<p><code>thread_sleep</code> останавливает текущий поток на миллисекунды. <code>thread_id</code> возвращает число, полученное из идентификатора потока ОС. <code>os_sleep</code> делает ту же паузу через пакет <code>com.terra.os</code>.</p>`,
+<p><code>thread.sleep</code> останавливает текущий поток на миллисекунды. <code>thread.id</code> возвращает число, полученное из идентификатора потока ОС. <code>os.sleep</code> делает ту же паузу через пакет <code>com.terra.os</code>.</p>`,
     },
   },
   {
@@ -474,16 +474,57 @@ func main(args: string[]) {
 
 use com.terra.fs;
 use com.terra.json;</pre>
-<p><code>use pkg;</code> imports every public name. The first import wins when two packages export the same name, which is why host functions are prefixed (<code>list_push</code>, not <code>push</code>). <code>use pkg.Type;</code> imports one name. Sources in <code>lib/</code> are compiled with the project.</p>
-<p>Working examples live in <code>examples/</code>: <code>hello</code>, <code>cli</code>, <code>files</code>, <code>json</code>, <code>http-get</code>, <code>http-server</code>, <code>sqlite</code>, <code>threads</code>, <code>zip</code>, and <code>regex</code>. From a project directory, <code>terra run project</code> runs it. <code>http-get</code> and <code>http-server</code> print a usage line until you pass arguments after <code>--</code>.</p>`,
+<p><code>use com.terra.sqlite;</code> binds the name <code>sqlite</code>. Calls look like <code>sqlite.exec(db, sql)</code>. <code>com.terra.sqlite.exec(...)</code> works without a use. <code>com.terra.lang</code> stays flat: <code>println</code>, <code>to_string</code>, <code>len</code>. <code>use pkg.Type;</code> still imports one name. Sources in <code>lib/</code> are compiled with the project.</p>
+<p>Working examples live in <code>examples/</code>: <code>hello</code>, <code>cli</code>, <code>files</code>, <code>json</code>, <code>http-get</code>, <code>http-server</code>, <code>sqlite</code>, <code>threads</code>, <code>zip</code>, <code>regex</code>, <code>cafe</code>, <code>calculator</code>, and <code>ledger</code>. From a project directory, <code>terra run project</code> runs it. The interface examples print a usage line until you pass <code>serve</code> and a port after <code>--</code>.</p>`,
       ru: `<h2>Пакеты и проекты</h2>
 <p>Файл проекта объявляет пакет, и каталог под <code>src/</code> должен ему соответствовать. <code>src/com/example/app/App.terra</code> содержит <code>package com.example.app;</code>. У одиночного файла пакет можно не писать; тогда он попадает в <code>_main</code>.</p>
 <pre>package com.example.app;
 
 use com.terra.fs;
 use com.terra.json;</pre>
-<p><code>use pkg;</code> импортирует все публичные имена. При совпадении имён побеждает первый импорт, поэтому функции хоста имеют приставку (<code>list_push</code>, а не <code>push</code>). <code>use pkg.Type;</code> импортирует одно имя. Исходники в <code>lib/</code> компилируются вместе с проектом.</p>
-<p>Рабочие примеры лежат в <code>examples/</code>: <code>hello</code>, <code>cli</code>, <code>files</code>, <code>json</code>, <code>http-get</code>, <code>http-server</code>, <code>sqlite</code>, <code>threads</code>, <code>zip</code> и <code>regex</code>. Из каталога проекта их запускает <code>terra run project</code>. <code>http-get</code> и <code>http-server</code> печатают подсказку, пока аргументы не переданы после <code>--</code>.</p>`,
+<p><code>use com.terra.sqlite;</code> связывает имя <code>sqlite</code>. Вызов выглядит как <code>sqlite.exec(db, sql)</code>. <code>com.terra.sqlite.exec(...)</code> работает и без use. <code>com.terra.lang</code> остаётся плоским: <code>println</code>, <code>to_string</code>, <code>len</code>. <code>use pkg.Type;</code> по-прежнему импортирует одно имя. Исходники в <code>lib/</code> компилируются вместе с проектом.</p>
+<p>Рабочие примеры лежат в <code>examples/</code>: <code>hello</code>, <code>cli</code>, <code>files</code>, <code>json</code>, <code>http-get</code>, <code>http-server</code>, <code>sqlite</code>, <code>threads</code>, <code>zip</code>, <code>regex</code>, <code>cafe</code>, <code>calculator</code> и <code>ledger</code>. Из каталога проекта их запускает <code>terra run project</code>. Примеры интерфейсов печатают подсказку, пока после <code>--</code> не переданы <code>serve</code> и порт.</p>`,
+    },
+  },
+  {
+    id: "ui",
+    en: "Interface",
+    ru: "Интерфейс",
+    body: {
+      en: `<h2>Interface</h2>
+<p><code>com.terra.ui</code> is the interface framework. A view function takes the page state as JSON and returns <code>ui.page</code>. <code>ui.serve</code> listens on <code>0.0.0.0</code>. A click or a form posts <code>{action, form, state}</code> to <code>/_ui</code>, the server merges that into the previous state, and calls the same function again. Themes are <code>roast</code>, <code>instrument</code>, and <code>ledger</code>.</p>
+<pre>use com.terra.ui;
+
+func view(state: string) -> any {
+    return ui.page("North & Bean", "roast", ui.h1("Poured slowly."), state);
+}
+
+func main(args: string[]) {
+    if (len(args) &lt; 2 || args[0] != "serve") {
+        println("usage: terra run project -- serve 8080");
+        return;
+    }
+    ui.serve(to_int(args[1]), "view");
+}</pre>
+<p>Children are one view, an array of views, or a list. Text is escaped. Buttons carry an action name. <code>ui.form</code> posts its fields under that action. <code>ui.table</code> takes two JSON strings: headers, then rows. <code>ui.key</code> is a calculator key; its kind is <code>digit</code>, <code>op</code>, <code>quiet</code>, <code>eq</code>, or <code>wide</code>.</p>
+<p>The examples are <code>examples/cafe</code> (a coffee room), <code>examples/calculator</code> (a working keypad), and <code>examples/ledger</code> (accounts in SQLite). Run each with <code>terra run project -- serve PORT</code>.</p>`,
+      ru: `<h2>Интерфейс</h2>
+<p><code>com.terra.ui</code> — каркас интерфейса. Функция вида получает состояние страницы как JSON и возвращает <code>ui.page</code>. <code>ui.serve</code> слушает <code>0.0.0.0</code>. Щелчок или форма отправляют <code>{action, form, state}</code> на <code>/_ui</code>, сервер вписывает это в прежнее состояние и снова вызывает ту же функцию. Темы: <code>roast</code>, <code>instrument</code>, <code>ledger</code>.</p>
+<pre>use com.terra.ui;
+
+func view(state: string) -> any {
+    return ui.page("North & Bean", "roast", ui.h1("Poured slowly."), state);
+}
+
+func main(args: string[]) {
+    if (len(args) &lt; 2 || args[0] != "serve") {
+        println("usage: terra run project -- serve 8080");
+        return;
+    }
+    ui.serve(to_int(args[1]), "view");
+}</pre>
+<p>Дети — это один вид, массив видов или список. Текст экранируется. У кнопки есть имя действия. <code>ui.form</code> отправляет поля под этим действием. <code>ui.table</code> принимает две JSON-строки: заголовки, затем строки. <code>ui.key</code> — клавиша калькулятора; вид — <code>digit</code>, <code>op</code>, <code>quiet</code>, <code>eq</code> или <code>wide</code>.</p>
+<p>Примеры: <code>examples/cafe</code> (кофейня), <code>examples/calculator</code> (рабочая клавиатура) и <code>examples/ledger</code> (счета в SQLite). Каждый запускается как <code>terra run project -- serve PORT</code>.</p>`,
     },
   },
   {
@@ -492,17 +533,17 @@ use com.terra.json;</pre>
     ru: "Библиотека",
     body: {
       en: `<h2>Standard library</h2>
-<p>Import a package and call its functions. Collections are dynamic <code>any</code> values because Terra has no generics. JSON, XML, and YAML share one JSON value. XML has the fields <code>tag</code>, <code>attrs</code>, <code>text</code>, and <code>children</code>. <code>json_get</code> of an object or array returns a clone: changing the child does not change the parent. Map keys are strings. A missing map or JSON field is <code>null</code>.</p>
-<p>HTTP is HTTP/1.1 on <code>http://</code> only. <code>https://</code> throws <code>IoError</code>. The client follows up to five GET redirects. The server listens on <code>0.0.0.0</code>. A handler is <code>func name(method: string, path: string, body: string) -&gt; string</code>. If the first line is <code>CODE content-type</code>, that sets the status and type. Otherwise the whole string is a 200 text body. <code>http_serve_n</code> returns after N requests. Each request runs in a fresh virtual machine.</p>
-<p>SQLite is real SQLite 3. <code>sqlite_query</code> returns a JSON array of objects. Zip entry names that contain <code>..</code> or <code>\\</code> are rejected. Dates and times are UTC. Format tokens are <code>YYYY MM DD hh mm ss</code>. <code>time_parse</code> accepts <code>YYYY-MM-DDTHH:MM:SSZ</code> or <code>YYYY-MM-DD HH:MM:SS</code>. <code>rand_seed</code> seeds one generator for the process. <code>proc_exit</code> ends the process. <code>os_chdir</code> changes the process directory.</p>
-<p>Regex arguments are the pattern, then the text. <code>regex_replace</code> takes the pattern, the text, and the replacement. <code>$1</code> inserts a capture group, so the pattern needs parentheses. <code>$0</code> is the whole match.</p>
+<p>Import a package and call its functions. <code>any</code> is a real type: a host value, a JSON value, or a view. Collections use it because Terra has no generics. JSON, XML, and YAML share one JSON value. XML has the fields <code>tag</code>, <code>attrs</code>, <code>text</code>, and <code>children</code>. <code>json.get</code> of an object or array returns a clone: changing the child does not change the parent. Map keys are strings. A missing map or JSON field is <code>null</code>.</p>
+<p>HTTP is HTTP/1.1 on <code>http://</code> only. <code>https://</code> throws <code>IoError</code>. The client follows up to five GET redirects. The server listens on <code>0.0.0.0</code>. A handler is <code>func name(method: string, path: string, body: string) -&gt; string</code>. If the first line is <code>CODE content-type</code>, that sets the status and type. Otherwise the whole string is a 200 text body. <code>http.serve_n</code> returns after N requests. Each request runs in a fresh virtual machine.</p>
+<p>SQLite is real SQLite 3. <code>sqlite.query</code> returns a JSON array of objects. Zip entry names that contain <code>..</code> or <code>\\</code> are rejected. Dates and times are UTC. Format tokens are <code>YYYY MM DD hh mm ss</code>. <code>time.parse</code> accepts <code>YYYY-MM-DDTHH:MM:SSZ</code> or <code>YYYY-MM-DD HH:MM:SS</code>. <code>rand.seed</code> seeds one generator for the process. <code>proc.exit</code> ends the process. <code>os.chdir</code> changes the process directory.</p>
+<p>Regex arguments are the pattern, then the text. <code>regex.replace</code> takes the pattern, the text, and the replacement. <code>$1</code> inserts a capture group, so the pattern needs parentheses. <code>$0</code> is the whole match.</p>
 <p>Every public host function is listed below. The text is the same text the compiler ships.</p>
 <div id="api"></div>`,
       ru: `<h2>Стандартная библиотека</h2>
-<p>Импортируйте пакет и вызывайте его функции. Коллекции имеют динамический тип <code>any</code>, потому что обобщений в Terra нет. JSON, XML и YAML используют одно JSON-значение. У XML поля <code>tag</code>, <code>attrs</code>, <code>text</code> и <code>children</code>. <code>json_get</code> у объекта или массива возвращает копию: изменение потомка не меняет родителя. Ключи словаря — строки. Отсутствующее поле словаря или JSON — <code>null</code>.</p>
-<p>HTTP — это HTTP/1.1 и только схема <code>http://</code>. <code>https://</code> бросает <code>IoError</code>. Клиент идёт по редиректам GET не больше пяти раз. Сервер слушает <code>0.0.0.0</code>. Обработчик — <code>func name(method: string, path: string, body: string) -&gt; string</code>. Если первая строка — <code>CODE content-type</code>, она задаёт статус и тип. Иначе вся строка — тело ответа 200. <code>http_serve_n</code> возвращает управление после N запросов. Каждый запрос выполняется в новой виртуальной машине.</p>
-<p>SQLite — это настоящий SQLite 3. <code>sqlite_query</code> возвращает JSON-массив объектов. Имена записей zip с <code>..</code> или <code>\\</code> отвергаются. Дата и время — UTC. Жетоны формата: <code>YYYY MM DD hh mm ss</code>. <code>time_parse</code> принимает <code>YYYY-MM-DDTHH:MM:SSZ</code> или <code>YYYY-MM-DD HH:MM:SS</code>. <code>rand_seed</code> задаёт один генератор на процесс. <code>proc_exit</code> завершает процесс. <code>os_chdir</code> меняет каталог процесса.</p>
-<p>Аргументы регулярного выражения — сначала шаблон, потом текст. <code>regex_replace</code> принимает шаблон, текст и замену. <code>$1</code> подставляет группу захвата, поэтому в шаблоне нужны скобки. <code>$0</code> — всё совпадение.</p>
+<p>Импортируйте пакет и вызывайте его функции. <code>any</code> — настоящий тип: значение хоста, JSON или вид. Коллекции используют его, потому что обобщений в Terra нет. JSON, XML и YAML используют одно JSON-значение. У XML поля <code>tag</code>, <code>attrs</code>, <code>text</code> и <code>children</code>. <code>json.get</code> у объекта или массива возвращает копию: изменение потомка не меняет родителя. Ключи словаря — строки. Отсутствующее поле словаря или JSON — <code>null</code>.</p>
+<p>HTTP — это HTTP/1.1 и только схема <code>http://</code>. <code>https://</code> бросает <code>IoError</code>. Клиент идёт по редиректам GET не больше пяти раз. Сервер слушает <code>0.0.0.0</code>. Обработчик — <code>func name(method: string, path: string, body: string) -&gt; string</code>. Если первая строка — <code>CODE content-type</code>, она задаёт статус и тип. Иначе вся строка — тело ответа 200. <code>http.serve_n</code> возвращает управление после N запросов. Каждый запрос выполняется в новой виртуальной машине.</p>
+<p>SQLite — это настоящий SQLite 3. <code>sqlite.query</code> возвращает JSON-массив объектов. Имена записей zip с <code>..</code> или <code>\\</code> отвергаются. Дата и время — UTC. Жетоны формата: <code>YYYY MM DD hh mm ss</code>. <code>time.parse</code> принимает <code>YYYY-MM-DDTHH:MM:SSZ</code> или <code>YYYY-MM-DD HH:MM:SS</code>. <code>rand.seed</code> задаёт один генератор на процесс. <code>proc.exit</code> завершает процесс. <code>os.chdir</code> меняет каталог процесса.</p>
+<p>Аргументы регулярного выражения — сначала шаблон, потом текст. <code>regex.replace</code> принимает шаблон, текст и замену. <code>$1</code> подставляет группу захвата, поэтому в шаблоне нужны скобки. <code>$0</code> — всё совпадение.</p>
 <p>Ниже перечислена каждая публичная функция хоста. Текст совпадает с тем, который поставляет компилятор.</p>
 <div id="api"></div>`,
     },
@@ -518,20 +559,22 @@ use com.terra.json;</pre>
 <p><strong>Why did use hide a function?</strong> Two imported names collided and the first one won. Call the other one by its full path, or import only that name.</p>
 <p><strong>Can I write a generic list?</strong> No. Use <code>com.terra.list</code> and the other collection packages. Values are <code>any</code>, and a wrong runtime value throws.</p>
 <p><strong>Can I open an HTTPS URL?</strong> No. The client accepts <code>http://</code> only.</p>
-<p><strong>Does await use a thread pool?</strong> No. <code>await</code> is cooperative on one thread. <code>thread_spawn</code> is a separate operating-system thread with a string argument and a string result.</p>
-<p><strong>What time zone is time_now?</strong> UTC, as Unix milliseconds. There is no time-zone database.</p>
+<p><strong>Does await use a thread pool?</strong> No. <code>await</code> is cooperative on one thread. <code>thread.spawn</code> is a separate operating-system thread with a string argument and a string result.</p>
+<p><strong>What time zone is time.now?</strong> UTC, as Unix milliseconds. There is no time-zone database.</p>
 <p><strong>The program printed a leak.</strong> A <code>new</code> object or array was still alive at exit. Host values are not part of that count. Free the ones you allocated, or accept the report.</p>
-<p><strong>How do I publish the docs?</strong> The site is the <code>docs/</code> directory. GitHub Actions workflow <code>pages</code> uploads that directory. Open <code>docs/index.html</code> through a local static server if the browser blocks <code>api.json</code> from a <code>file://</code> page.</p>`,
+<p><strong>How do I publish the docs?</strong> The site is static HTML in <code>docs/</code>. Open <code>docs/index.html</code> directly. <code>docs/api.js</code> is a script, so the page does not need a server. GitHub Actions workflow <code>pages</code> uploads that directory.</p>
+<p><strong>Is the UI a browser inside the language?</strong> No. <code>com.terra.ui</code> builds a tree of views, the server renders HTML, and a short page script posts button and form actions back to the same Terra function.</p>`,
       ru: `<h2>Вопросы</h2>
 <p><strong>Куда ставить точку с запятой?</strong> После оператора. Не после <code>}</code>, которая закрывает функцию, класс или блок управления.</p>
 <p><strong>Почему main не запускается?</strong> У точки входа ровно один параметр <code>string[]</code>. Возврат — <code>void</code> или <code>int</code>. Методу экземпляра нужен ещё конструктор без параметров.</p>
 <p><strong>Почему use спрятал функцию?</strong> Два импортированных имени совпали, и победило первое. Вызовите второе полным путём или импортируйте только его.</p>
 <p><strong>Можно ли написать обобщённый список?</strong> Нет. Используйте <code>com.terra.list</code> и остальные пакеты коллекций. Значения имеют тип <code>any</code>, а неверное значение во время выполнения бросает исключение.</p>
 <p><strong>Можно ли открыть HTTPS?</strong> Нет. Клиент принимает только <code>http://</code>.</p>
-<p><strong>await берёт пул потоков?</strong> Нет. <code>await</code> кооперативный и идёт в одном потоке. <code>thread_spawn</code> — отдельный поток операционной системы со строковым аргументом и строковым результатом.</p>
-<p><strong>В каком поясе time_now?</strong> UTC, миллисекунды Unix. Базы часовых поясов нет.</p>
+<p><strong>await берёт пул потоков?</strong> Нет. <code>await</code> кооперативный и идёт в одном потоке. <code>thread.spawn</code> — отдельный поток операционной системы со строковым аргументом и строковым результатом.</p>
+<p><strong>В каком поясе time.now?</strong> UTC, миллисекунды Unix. Базы часовых поясов нет.</p>
 <p><strong>Программа написала про утечку.</strong> Объект или массив из <code>new</code> остался жив к выходу. Значения хоста в этот счёт не входят. Освободите выделенное или примите отчёт.</p>
-<p><strong>Как опубликовать документацию?</strong> Сайт — это каталог <code>docs/</code>. Workflow <code>pages</code> в GitHub Actions выкладывает этот каталог. Если браузер блокирует <code>api.json</code> со страницы <code>file://</code>, откройте <code>docs/index.html</code> через локальный статический сервер.</p>`,
+<p><strong>Как опубликовать документацию?</strong> Сайт — это статический HTML в <code>docs/</code>. Откройте <code>docs/index.html</code> прямо с диска. <code>docs/api.js</code> подключается как скрипт, сервер не нужен. Workflow <code>pages</code> в GitHub Actions выкладывает этот каталог.</p>
+<p><strong>Интерфейс — это браузер внутри языка?</strong> Нет. <code>com.terra.ui</code> собирает дерево видов, сервер рисует HTML, а короткий сценарий страницы отправляет кнопки и формы обратно в ту же функцию Terra.</p>`,
     },
   },
 ];
@@ -584,8 +627,9 @@ function highlight(src) {
 }
 
 function signature(fn) {
+  const alias = fn.package.split(".").pop();
   const ret = fn.ret === "void" ? "" : " -> " + fn.ret;
-  return fn.name + "(" + fn.params.join(", ") + ")" + ret;
+  return alias + "." + fn.name + "(" + fn.params.join(", ") + ")" + ret;
 }
 
 function renderApi(root) {
@@ -598,7 +642,8 @@ function renderApi(root) {
   const groups = new Map();
   for (const fn of api) {
     const doc = lang === "ru" ? fn.doc_ru : fn.doc_en;
-    const blob = (fn.package + " " + fn.name + " " + doc).toLowerCase();
+    const alias = fn.package.split(".").pop();
+    const blob = (fn.package + " " + alias + "." + fn.name + " " + doc).toLowerCase();
     if (query && !blob.includes(query)) continue;
     if (!groups.has(fn.package)) groups.set(fn.package, []);
     groups.get(fn.package).push(fn);
@@ -688,16 +733,5 @@ document.querySelectorAll(".langs button").forEach((button) => {
   });
 });
 
-fetch("api.json")
-  .then((res) => (res.ok ? res.json() : Promise.reject(new Error("missing"))))
-  .then((data) => {
-    api = data;
-    renderApi(document.getElementById("main"));
-    applyFilter();
-  })
-  .catch(() => {
-    api = null;
-    renderApi(document.getElementById("main"));
-  });
-
+api = window.TERRA_API || null;
 render();

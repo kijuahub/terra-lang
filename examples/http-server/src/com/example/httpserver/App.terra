@@ -11,5 +11,5 @@ func main(args: string[]) {
         println("usage: terra run project -- serve PORT");
         return;
     }
-    http_serve(to_int(args[1]), "page");
+    http.serve(to_int(args[1]), "page");
 }

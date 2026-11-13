@@ -13,6 +13,7 @@ fn primitive(name: &str) -> Option<Ty> {
         "double" => Ty::Double,
         "bool" => Ty::Bool,
         "string" => Ty::String,
+        "any" => Ty::Any,
         _ => return None,
     })
 }

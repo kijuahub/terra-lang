@@ -71,6 +71,8 @@ enum Symbol {
     Enum(u32),
     Const(u32),
     Builtin(Builtin),
+    /// Imported host package. `sqlite.exec` resolves through this alias.
+    Ns(String),
 }
 
 struct ClassRec {
@@ -892,6 +894,17 @@ impl Analyzer {
                 .collect(),
             None => Vec::new(),
         };
+        let host_ns = package != PRELUDE
+            && !symbols.is_empty()
+            && symbols.iter().all(|(_, sym)| matches!(sym, Symbol::Builtin(Builtin::Host(_))));
+        if host_ns {
+            let alias = package.rsplit('.').next().unwrap().to_string();
+            self.files[file as usize]
+                .imports
+                .entry(alias)
+                .or_insert(Symbol::Ns(package.to_string()));
+            return;
+        }
         for (name, sym) in symbols {
             self.files[file as usize].imports.entry(name).or_insert(sym);
         }
@@ -904,7 +917,7 @@ impl Analyzer {
             Symbol::Iface(id) => self.ifaces[*id as usize].vis,
             Symbol::Enum(id) => self.enums[*id as usize].vis,
             Symbol::Const(id) => self.consts[*id as usize].vis,
-            Symbol::Builtin(_) => Vis::Pub,
+            Symbol::Builtin(_) | Symbol::Ns(_) => Vis::Pub,
         }
     }
 
@@ -933,7 +946,7 @@ impl Analyzer {
             Symbol::Iface(id) => self.ifaces[*id as usize].file,
             Symbol::Enum(id) => self.enums[*id as usize].file,
             Symbol::Const(id) => self.consts[*id as usize].file,
-            Symbol::Builtin(_) => u32::MAX,
+            Symbol::Builtin(_) | Symbol::Ns(_) => u32::MAX,
         }
     }
 
@@ -945,6 +958,7 @@ impl Analyzer {
             Symbol::Enum(id) => self.enums[*id as usize].package.clone(),
             Symbol::Const(id) => self.consts[*id as usize].package.clone(),
             Symbol::Builtin(_) => PRELUDE.into(),
+            Symbol::Ns(pkg) => pkg.clone(),
         }
     }
 
@@ -2381,7 +2395,7 @@ impl Analyzer {
                 }
                 self.poison(span)
             }
-            Some(Symbol::Func(_)) | Some(Symbol::Builtin(_)) | Some(Symbol::Class(_)) | Some(Symbol::Iface(_)) | Some(Symbol::Enum(_)) => {
+            Some(Symbol::Func(_)) | Some(Symbol::Builtin(_)) | Some(Symbol::Class(_)) | Some(Symbol::Iface(_)) | Some(Symbol::Enum(_)) | Some(Symbol::Ns(_)) => {
                 self.err(span, DiagKind::NotCallable { name: name.into() });
                 self.poison(span)
             }
@@ -2530,6 +2544,23 @@ impl Analyzer {
     }
 
     fn call_path(&mut self, path: &[String], args: Vec<Expr>, span: Span) -> Expr {
+        if path.len() == 2 {
+            if let Some(Symbol::Ns(pkg)) = self.lookup_name(self.current_file(), &path[0]) {
+                let member = path[1].clone();
+                if let Some(sym) = self.packages.get(&pkg).and_then(|p| p.symbols.get(&member)).cloned() {
+                    return match sym {
+                        Symbol::Builtin(b) => self.emit_builtin(b, args, span),
+                        Symbol::Func(id) => self.emit_func(id, args, span),
+                        _ => {
+                            self.err(span, DiagKind::NotCallable { name: member });
+                            self.poison(span)
+                        }
+                    };
+                }
+                self.err(span, DiagKind::NoMethod { name: member });
+                return self.poison(span);
+            }
+        }
         if path.len() >= 2 {
             for i in 1..path.len() {
                 let pkg = path[..i].join(".");

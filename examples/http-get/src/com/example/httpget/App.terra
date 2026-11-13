@@ -7,5 +7,5 @@ func main(args: string[]) {
         println("usage: terra run project -- http://host/path");
         return;
     }
-    println(http_get(args[0]));
+    println(http.get(args[0]));
 }

@@ -1,0 +1,100 @@
+package com.example.cafe;
+
+use com.terra.ui;
+use com.terra.json;
+
+func field(form: any, name: string) -> string {
+    if (json.kind(form) != "object") {
+        return "";
+    }
+    var value = to_string(json.get(form, name));
+    if (value == "null") {
+        return "";
+    }
+    return value;
+}
+
+func view(state: string) -> any {
+    var doc = json.parse(state);
+    var action = to_string(json.get(doc, "action"));
+    var form = json.get(doc, "form");
+    mut note = "";
+    if (action == "reserve") {
+        var name = field(form, "name");
+        var when = field(form, "when");
+        var party = field(form, "party");
+        if (name == "") {
+            note = "Leave a name, and the table stays open.";
+        } else {
+            note = "Held for " + name + ", " + when + ", party of " + party + ".";
+        }
+    }
+    var page = ui.col([
+        ui.nav("North & Bean", [
+            ui.a("#menu", "Menu"),
+            ui.a("#bar", "Bar"),
+            ui.a("#visit", "Visit"),
+            ui.a("#reserve", "Reserve")
+        ]),
+        ui.hero(
+            "A room for coffee",
+            "Poured slowly, on the north side.",
+            "Single origin, a short menu, and no music louder than the cups. Walk past the flowers. The door has a brass handle and no sign.",
+            "",
+            ""
+        ),
+        ui.anchor("menu", [
+            ui.kicker("Menu"),
+            ui.h2("Three coffees. That is the list."),
+            ui.grid(3, [
+                ui.card("House", "Cedar, cocoa, and a short finish. The cup we pour when you do not name one.", "4.50"),
+                ui.card("Guest", "This week, a washed lot from Huila. Stone fruit, then cocoa.", "5.50"),
+                ui.card("Decaf", "The same beans, after the water process. Evening, without the edge.", "4.50")
+            ])
+        ]),
+        ui.anchor("bar", [
+            ui.kicker("Bar"),
+            ui.h2("Nothing longer than the cup."),
+            ui.grid(2, [
+                ui.price("Espresso", "Short, dense, no syrup.", "3.20"),
+                ui.price("Filter", "A full cup, poured by hand.", "4.50"),
+                ui.price("Milk", "Oat, unless you say otherwise.", "5.00"),
+                ui.price("Cold", "Overnight, served over one cube.", "4.80")
+            ])
+        ]),
+        ui.anchor("visit", [
+            ui.split(
+                ui.col([
+                    ui.kicker("Visit"),
+                    ui.h2("North aisle, past the flowers."),
+                    ui.p("Tuesday to Sunday. Monday the room is dark and the grinder is apart on the bench.")
+                ]),
+                ui.col([
+                    ui.stat("Hours", "7–3", "Closed Monday"),
+                    ui.stat("Before noon", "140", "Cups, on a full day")
+                ])
+            )
+        ]),
+        ui.anchor("reserve", [
+            ui.kicker("Reserve"),
+            ui.h2("A table, if you want one."),
+            ui.p("Two turns in the evening. We hold the table for ten minutes."),
+            ui.form("reserve", [
+                ui.field("Name", "name", ""),
+                ui.field("When", "when", "Tonight"),
+                ui.field("Party", "party", "2"),
+                ui.submit("Hold a table")
+            ]),
+            ui.note(note)
+        ])
+    ]);
+    return ui.page("North & Bean", "roast", page, state);
+}
+
+func main(args: string[]) {
+    if (len(args) < 2 || args[0] != "serve") {
+        println("usage: terra run project -- serve 8080");
+        return;
+    }
+    ui.serve(to_int(args[1]), "view");
+}

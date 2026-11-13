@@ -853,7 +853,7 @@ impl<'a> Parser<'a> {
         let mut expr = self.parse_primary()?;
         loop {
             if self.eat(|k| matches!(k, TokenKind::Dot)) {
-                let name = self.expect_ident()?;
+                let name = self.expect_member()?;
                 expr = Expr {
                     kind: ExprKind::Field {
                         recv: Box::new(expr),
@@ -1050,6 +1050,20 @@ impl<'a> Parser<'a> {
         } else {
             Err(self.err_here(DiagKind::ExpectedSemicolon))
         }
+    }
+
+    fn expect_member(&mut self) -> Result<String, Diagnostic> {
+        if let TokenKind::Ident(name) = &self.peek().kind {
+            let name = name.clone();
+            self.bump();
+            return Ok(name);
+        }
+        // `new` is a keyword, and the collection packages use it as a method.
+        if matches!(self.peek().kind, TokenKind::New) {
+            self.bump();
+            return Ok("new".into());
+        }
+        Err(self.err_here(DiagKind::ExpectedIdent))
     }
 
     fn expect_ident(&mut self) -> Result<String, Diagnostic> {

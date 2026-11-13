@@ -40,6 +40,7 @@ pub(crate) enum HostObj {
     Thread(Option<JoinHandle<Result<String, String>>>),
     Tcp(TcpStream),
     Listener(TcpListener),
+    Ui(crate::ui::Node),
 }
 
 impl HostObj {
@@ -55,6 +56,7 @@ impl HostObj {
             HostObj::Thread(_) => "thread",
             HostObj::Tcp(_) => "tcp",
             HostObj::Listener(_) => "listener",
+            HostObj::Ui(_) => "ui",
         }
     }
 }
@@ -71,40 +73,40 @@ pub(crate) fn exec(vm: &mut Vm, id: u16) -> Result<(), Fault> {
 
 fn dispatch(vm: &mut Vm, package: &str, name: &str, args: Vec<Value>) -> Result<Value, Fault> {
     match (package, name) {
-        ("com.terra.math", "math_sin") => num(f64(vm, &args, 0)?.sin()),
-        ("com.terra.math", "math_cos") => num(f64(vm, &args, 0)?.cos()),
-        ("com.terra.math", "math_tan") => num(f64(vm, &args, 0)?.tan()),
-        ("com.terra.math", "math_asin") => num(f64(vm, &args, 0)?.asin()),
-        ("com.terra.math", "math_acos") => num(f64(vm, &args, 0)?.acos()),
-        ("com.terra.math", "math_atan") => num(f64(vm, &args, 0)?.atan()),
-        ("com.terra.math", "math_atan2") => num(f64(vm, &args, 0)?.atan2(f64(vm, &args, 1)?)),
-        ("com.terra.math", "math_sqrt") => num(f64(vm, &args, 0)?.sqrt()),
-        ("com.terra.math", "math_pow") => num(f64(vm, &args, 0)?.powf(f64(vm, &args, 1)?)),
-        ("com.terra.math", "math_log") => num(f64(vm, &args, 0)?.ln()),
-        ("com.terra.math", "math_log10") => num(f64(vm, &args, 0)?.log10()),
-        ("com.terra.math", "math_exp") => num(f64(vm, &args, 0)?.exp()),
-        ("com.terra.math", "math_floor") => num(f64(vm, &args, 0)?.floor()),
-        ("com.terra.math", "math_ceil") => num(f64(vm, &args, 0)?.ceil()),
-        ("com.terra.math", "math_round") => num(f64(vm, &args, 0)?.round()),
-        ("com.terra.math", "math_abs") => num(f64(vm, &args, 0)?.abs()),
-        ("com.terra.math", "math_min") => num(f64(vm, &args, 0)?.min(f64(vm, &args, 1)?)),
-        ("com.terra.math", "math_max") => num(f64(vm, &args, 0)?.max(f64(vm, &args, 1)?)),
-        ("com.terra.math", "math_pi") => Ok(Value::Double(std::f64::consts::PI)),
-        ("com.terra.math", "math_e") => Ok(Value::Double(std::f64::consts::E)),
-        ("com.terra.fs", "fs_read_text") => Ok(Value::Str(fs::read_to_string(text(&args, 0)?).map_err(io)?)),
-        ("com.terra.fs", "fs_write_text") => {
+        ("com.terra.math", "sin") => num(f64(vm, &args, 0)?.sin()),
+        ("com.terra.math", "cos") => num(f64(vm, &args, 0)?.cos()),
+        ("com.terra.math", "tan") => num(f64(vm, &args, 0)?.tan()),
+        ("com.terra.math", "asin") => num(f64(vm, &args, 0)?.asin()),
+        ("com.terra.math", "acos") => num(f64(vm, &args, 0)?.acos()),
+        ("com.terra.math", "atan") => num(f64(vm, &args, 0)?.atan()),
+        ("com.terra.math", "atan2") => num(f64(vm, &args, 0)?.atan2(f64(vm, &args, 1)?)),
+        ("com.terra.math", "sqrt") => num(f64(vm, &args, 0)?.sqrt()),
+        ("com.terra.math", "pow") => num(f64(vm, &args, 0)?.powf(f64(vm, &args, 1)?)),
+        ("com.terra.math", "log") => num(f64(vm, &args, 0)?.ln()),
+        ("com.terra.math", "log10") => num(f64(vm, &args, 0)?.log10()),
+        ("com.terra.math", "exp") => num(f64(vm, &args, 0)?.exp()),
+        ("com.terra.math", "floor") => num(f64(vm, &args, 0)?.floor()),
+        ("com.terra.math", "ceil") => num(f64(vm, &args, 0)?.ceil()),
+        ("com.terra.math", "round") => num(f64(vm, &args, 0)?.round()),
+        ("com.terra.math", "abs") => num(f64(vm, &args, 0)?.abs()),
+        ("com.terra.math", "min") => num(f64(vm, &args, 0)?.min(f64(vm, &args, 1)?)),
+        ("com.terra.math", "max") => num(f64(vm, &args, 0)?.max(f64(vm, &args, 1)?)),
+        ("com.terra.math", "pi") => Ok(Value::Double(std::f64::consts::PI)),
+        ("com.terra.math", "e") => Ok(Value::Double(std::f64::consts::E)),
+        ("com.terra.fs", "read_text") => Ok(Value::Str(fs::read_to_string(text(&args, 0)?).map_err(io)?)),
+        ("com.terra.fs", "write_text") => {
             fs::write(text(&args, 0)?, text(&args, 1)?).map_err(io)?;
             Ok(Value::Null)
         }
-        ("com.terra.fs", "fs_append_text") => {
+        ("com.terra.fs", "append_text") => {
             let mut file = fs::OpenOptions::new().create(true).append(true).open(text(&args, 0)?).map_err(io)?;
             file.write_all(text(&args, 1)?.as_bytes()).map_err(io)?;
             Ok(Value::Null)
         }
-        ("com.terra.fs", "fs_exists") => Ok(Value::Bool(Path::new(text(&args, 0)?).exists())),
-        ("com.terra.fs", "fs_is_file") => Ok(Value::Bool(Path::new(text(&args, 0)?).is_file())),
-        ("com.terra.fs", "fs_is_dir") => Ok(Value::Bool(Path::new(text(&args, 0)?).is_dir())),
-        ("com.terra.fs", "fs_remove") => {
+        ("com.terra.fs", "exists") => Ok(Value::Bool(Path::new(text(&args, 0)?).exists())),
+        ("com.terra.fs", "is_file") => Ok(Value::Bool(Path::new(text(&args, 0)?).is_file())),
+        ("com.terra.fs", "is_dir") => Ok(Value::Bool(Path::new(text(&args, 0)?).is_dir())),
+        ("com.terra.fs", "remove") => {
             let path = Path::new(text(&args, 0)?);
             if path.is_dir() {
                 fs::remove_dir_all(path).map_err(io)?;
@@ -113,11 +115,11 @@ fn dispatch(vm: &mut Vm, package: &str, name: &str, args: Vec<Value>) -> Result<
             }
             Ok(Value::Null)
         }
-        ("com.terra.fs", "fs_mkdir") => {
+        ("com.terra.fs", "mkdir") => {
             fs::create_dir_all(text(&args, 0)?).map_err(io)?;
             Ok(Value::Null)
         }
-        ("com.terra.fs", "fs_list") => {
+        ("com.terra.fs", "list") => {
             let mut names = Vec::new();
             for entry in fs::read_dir(text(&args, 0)?).map_err(io)? {
                 let entry = entry.map_err(io)?;
@@ -126,212 +128,213 @@ fn dispatch(vm: &mut Vm, package: &str, name: &str, args: Vec<Value>) -> Result<
             names.sort_by(|a, b| a.as_str().cmp(&b.as_str()));
             Ok(Value::Str(Json::Array(names).to_string()))
         }
-        ("com.terra.fs", "fs_copy") => {
+        ("com.terra.fs", "copy") => {
             fs::copy(text(&args, 0)?, text(&args, 1)?).map_err(io)?;
             Ok(Value::Null)
         }
-        ("com.terra.fs", "fs_rename") => {
+        ("com.terra.fs", "rename") => {
             fs::rename(text(&args, 0)?, text(&args, 1)?).map_err(io)?;
             Ok(Value::Null)
         }
-        ("com.terra.fs", "fs_size") => Ok(Value::Int(fs::metadata(text(&args, 0)?).map_err(io)?.len() as i64)),
-        ("com.terra.fs", "fs_read_base64") => Ok(Value::Str(b64_encode(&fs::read(text(&args, 0)?).map_err(io)?))),
-        ("com.terra.fs", "fs_write_base64") => {
+        ("com.terra.fs", "size") => Ok(Value::Int(fs::metadata(text(&args, 0)?).map_err(io)?.len() as i64)),
+        ("com.terra.fs", "read_base64") => Ok(Value::Str(b64_encode(&fs::read(text(&args, 0)?).map_err(io)?))),
+        ("com.terra.fs", "write_base64") => {
             fs::write(text(&args, 0)?, b64_decode(text(&args, 1)?)?).map_err(io)?;
             Ok(Value::Null)
         }
-        ("com.terra.env", "env_get") => Ok(Value::Str(std::env::var(text(&args, 0)?).unwrap_or_default())),
-        ("com.terra.env", "env_has") => Ok(Value::Bool(std::env::var_os(text(&args, 0)?).is_some())),
-        ("com.terra.env", "env_set") => {
+        ("com.terra.env", "get") => Ok(Value::Str(std::env::var(text(&args, 0)?).unwrap_or_default())),
+        ("com.terra.env", "has") => Ok(Value::Bool(std::env::var_os(text(&args, 0)?).is_some())),
+        ("com.terra.env", "set") => {
             std::env::set_var(text(&args, 0)?, text(&args, 1)?);
             Ok(Value::Null)
         }
-        ("com.terra.env", "env_remove") => {
+        ("com.terra.env", "remove") => {
             std::env::remove_var(text(&args, 0)?);
             Ok(Value::Null)
         }
-        ("com.terra.env", "env_all") => {
+        ("com.terra.env", "all") => {
             let mut obj = Map::new();
             for (k, v) in std::env::vars() {
                 obj.insert(k, Json::String(v));
             }
             Ok(Value::Str(Json::Object(obj).to_string()))
         }
-        ("com.terra.os", "os_name") => Ok(Value::Str(std::env::consts::OS.into())),
-        ("com.terra.os", "os_arch") => Ok(Value::Str(std::env::consts::ARCH.into())),
-        ("com.terra.os", "os_cwd") => Ok(Value::Str(std::env::current_dir().map_err(io)?.display().to_string())),
-        ("com.terra.os", "os_chdir") => {
+        ("com.terra.os", "name") => Ok(Value::Str(std::env::consts::OS.into())),
+        ("com.terra.os", "arch") => Ok(Value::Str(std::env::consts::ARCH.into())),
+        ("com.terra.os", "cwd") => Ok(Value::Str(std::env::current_dir().map_err(io)?.display().to_string())),
+        ("com.terra.os", "chdir") => {
             std::env::set_current_dir(text(&args, 0)?).map_err(io)?;
             Ok(Value::Null)
         }
-        ("com.terra.os", "os_home") => Ok(Value::Str(home_dir())),
-        ("com.terra.os", "os_tmp") => Ok(Value::Str(std::env::temp_dir().display().to_string())),
-        ("com.terra.os", "os_pid") => Ok(Value::Int(std::process::id() as i64)),
-        ("com.terra.os", "os_hostname") => Ok(Value::Str(hostname())),
-        ("com.terra.os", "os_sleep") => {
+        ("com.terra.os", "home") => Ok(Value::Str(home_dir())),
+        ("com.terra.os", "tmp") => Ok(Value::Str(std::env::temp_dir().display().to_string())),
+        ("com.terra.os", "pid") => Ok(Value::Int(std::process::id() as i64)),
+        ("com.terra.os", "hostname") => Ok(Value::Str(hostname())),
+        ("com.terra.os", "sleep") => {
             std::thread::sleep(Duration::from_millis(int(&args, 0)?.max(0) as u64));
             Ok(Value::Null)
         }
-        ("com.terra.os", "os_args") => Ok(alloc(vm, HostObj::List(program_args(vm)))),
-        ("com.terra.path", "path_join") => Ok(Value::Str(Path::new(text(&args, 0)?).join(text(&args, 1)?).display().to_string())),
-        ("com.terra.path", "path_name") => Ok(Value::Str(Path::new(text(&args, 0)?).file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default())),
-        ("com.terra.path", "path_parent") => Ok(Value::Str(Path::new(text(&args, 0)?).parent().map(|p| p.display().to_string()).unwrap_or_default())),
-        ("com.terra.path", "path_ext") => Ok(Value::Str(Path::new(text(&args, 0)?).extension().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default())),
-        ("com.terra.proc", "proc_output") => proc_output(vm, text(&args, 0)?, host(&args, 1)?),
-        ("com.terra.proc", "proc_exit") => std::process::exit(int(&args, 0)? as i32),
-        ("com.terra.http", "http_get") => http_get(text(&args, 0)?),
-        ("com.terra.http", "http_text") => http_text(text(&args, 0)?, text(&args, 1)?, text(&args, 2)?, text(&args, 3)?),
-        ("com.terra.http", "http_serve") => http_serve(vm, int(&args, 0)?, text(&args, 1)?, None),
-        ("com.terra.http", "http_serve_n") => http_serve(vm, int(&args, 0)?, text(&args, 1)?, Some(int(&args, 2)?.max(0) as usize)),
-        ("com.terra.net", "tcp_connect") => tcp_connect(vm, text(&args, 0)?, int(&args, 1)?),
-        ("com.terra.net", "tcp_send") => tcp_send(vm, host(&args, 0)?, text(&args, 1)?),
-        ("com.terra.net", "tcp_recv") => tcp_recv(vm, host(&args, 0)?, int(&args, 1)?),
-        ("com.terra.net", "tcp_close") => {
+        ("com.terra.os", "args") => Ok(alloc(vm, HostObj::List(program_args(vm)))),
+        ("com.terra.path", "join") => Ok(Value::Str(Path::new(text(&args, 0)?).join(text(&args, 1)?).display().to_string())),
+        ("com.terra.path", "name") => Ok(Value::Str(Path::new(text(&args, 0)?).file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default())),
+        ("com.terra.path", "parent") => Ok(Value::Str(Path::new(text(&args, 0)?).parent().map(|p| p.display().to_string()).unwrap_or_default())),
+        ("com.terra.path", "ext") => Ok(Value::Str(Path::new(text(&args, 0)?).extension().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default())),
+        ("com.terra.proc", "output") => proc_output(vm, text(&args, 0)?, host(&args, 1)?),
+        ("com.terra.proc", "exit") => std::process::exit(int(&args, 0)? as i32),
+        ("com.terra.http", "get") => http_get(text(&args, 0)?),
+        ("com.terra.http", "text") => http_text(text(&args, 0)?, text(&args, 1)?, text(&args, 2)?, text(&args, 3)?),
+        ("com.terra.http", "serve") => http_serve(vm, int(&args, 0)?, text(&args, 1)?, None),
+        ("com.terra.http", "serve_n") => http_serve(vm, int(&args, 0)?, text(&args, 1)?, Some(int(&args, 2)?.max(0) as usize)),
+        ("com.terra.net", "connect") => tcp_connect(vm, text(&args, 0)?, int(&args, 1)?),
+        ("com.terra.net", "send") => tcp_send(vm, host(&args, 0)?, text(&args, 1)?),
+        ("com.terra.net", "recv") => tcp_recv(vm, host(&args, 0)?, int(&args, 1)?),
+        ("com.terra.net", "close") => {
             vm.heap.free(host(&args, 0)?)?;
             Ok(Value::Null)
         }
-        ("com.terra.net", "tcp_listen") => tcp_listen(vm, int(&args, 0)?),
-        ("com.terra.net", "tcp_port") => tcp_port(vm, host(&args, 0)?),
-        ("com.terra.net", "tcp_accept") => tcp_accept(vm, host(&args, 0)?),
-        ("com.terra.thread", "thread_spawn") => thread_spawn(vm, text(&args, 0)?, text(&args, 1)?),
-        ("com.terra.thread", "thread_join") => thread_join(vm, host(&args, 0)?),
-        ("com.terra.thread", "thread_sleep") => {
+        ("com.terra.net", "listen") => tcp_listen(vm, int(&args, 0)?),
+        ("com.terra.net", "port") => tcp_port(vm, host(&args, 0)?),
+        ("com.terra.net", "accept") => tcp_accept(vm, host(&args, 0)?),
+        ("com.terra.thread", "spawn") => thread_spawn(vm, text(&args, 0)?, text(&args, 1)?),
+        ("com.terra.thread", "join") => thread_join(vm, host(&args, 0)?),
+        ("com.terra.thread", "sleep") => {
             std::thread::sleep(Duration::from_millis(int(&args, 0)?.max(0) as u64));
             Ok(Value::Null)
         }
-        ("com.terra.thread", "thread_id") => Ok(Value::Int(thread_id())),
-        ("com.terra.json", "json_parse") => Ok(alloc(vm, HostObj::Json(serde_json::from_str(text(&args, 0)?).map_err(io)?))),
-        ("com.terra.json", "json_stringify") => Ok(Value::Str(value_to_json(vm, &args[0])?.to_string())),
-        ("com.terra.json", "json_kind") => json_kind(vm, &args[0]),
-        ("com.terra.json", "json_get") => json_get(vm, host(&args, 0)?, text(&args, 1)?),
-        ("com.terra.json", "json_set") => json_set(vm, host(&args, 0)?, text(&args, 1)?, &args[2]),
-        ("com.terra.json", "json_index") => json_index(vm, host(&args, 0)?, int(&args, 1)?),
-        ("com.terra.json", "json_len") => json_len(vm, &args[0]),
-        ("com.terra.json", "json_push") => json_push(vm, host(&args, 0)?, &args[1]),
-        ("com.terra.xml", "xml_parse") => Ok(alloc(vm, HostObj::Json(xml_to_json(text(&args, 0)?)?))),
-        ("com.terra.xml", "xml_stringify") => Ok(Value::Str(json_to_xml(&value_to_json(vm, &args[0])?))),
-        ("com.terra.yaml", "yaml_parse") => {
+        ("com.terra.thread", "id") => Ok(Value::Int(thread_id())),
+        ("com.terra.json", "parse") => Ok(alloc(vm, HostObj::Json(serde_json::from_str(text(&args, 0)?).map_err(io)?))),
+        ("com.terra.json", "stringify") => Ok(Value::Str(value_to_json(vm, &args[0])?.to_string())),
+        ("com.terra.json", "kind") => json_kind(vm, &args[0]),
+        ("com.terra.json", "get") => json_get(vm, host(&args, 0)?, text(&args, 1)?),
+        ("com.terra.json", "set") => json_set(vm, host(&args, 0)?, text(&args, 1)?, &args[2]),
+        ("com.terra.json", "index") => json_index(vm, host(&args, 0)?, int(&args, 1)?),
+        ("com.terra.json", "len") => json_len(vm, &args[0]),
+        ("com.terra.json", "push") => json_push(vm, host(&args, 0)?, &args[1]),
+        ("com.terra.xml", "parse") => Ok(alloc(vm, HostObj::Json(xml_to_json(text(&args, 0)?)?))),
+        ("com.terra.xml", "stringify") => Ok(Value::Str(json_to_xml(&value_to_json(vm, &args[0])?))),
+        ("com.terra.yaml", "parse") => {
             let yaml: serde_yaml::Value = serde_yaml::from_str(text(&args, 0)?).map_err(io)?;
             let json = serde_json::to_value(yaml).map_err(io)?;
             Ok(alloc(vm, HostObj::Json(json)))
         }
-        ("com.terra.yaml", "yaml_stringify") => {
+        ("com.terra.yaml", "stringify") => {
             let json = value_to_json(vm, &args[0])?;
             let yaml = serde_yaml::to_string(&json).map_err(io)?;
             Ok(Value::Str(yaml))
         }
-        ("com.terra.sqlite", "sqlite_open") => Ok(alloc(vm, HostObj::Sqlite(Connection::open(text(&args, 0)?).map_err(io)?))),
-        ("com.terra.sqlite", "sqlite_exec") => sqlite_exec(vm, host(&args, 0)?, text(&args, 1)?),
-        ("com.terra.sqlite", "sqlite_query") => sqlite_query(vm, host(&args, 0)?, text(&args, 1)?),
-        ("com.terra.sqlite", "sqlite_close") => {
+        ("com.terra.sqlite", "open") => Ok(alloc(vm, HostObj::Sqlite(Connection::open(text(&args, 0)?).map_err(io)?))),
+        ("com.terra.sqlite", "exec") => sqlite_exec(vm, host(&args, 0)?, text(&args, 1)?),
+        ("com.terra.sqlite", "query") => sqlite_query(vm, host(&args, 0)?, text(&args, 1)?),
+        ("com.terra.sqlite", "close") => {
             vm.heap.free(host(&args, 0)?)?;
             Ok(Value::Null)
         }
-        ("com.terra.archive", "zip_add") => {
+        ("com.terra.archive", "add") => {
             zip_add(text(&args, 0)?, text(&args, 1)?, text(&args, 2)?)?;
             Ok(Value::Null)
         }
-        ("com.terra.archive", "zip_list") => Ok(Value::Str(zip_list(text(&args, 0)?)?)),
-        ("com.terra.archive", "zip_read") => Ok(Value::Str(zip_read(text(&args, 0)?, text(&args, 1)?)?)),
-        ("com.terra.archive", "zip_extract") => {
+        ("com.terra.archive", "list") => Ok(Value::Str(zip_list(text(&args, 0)?)?)),
+        ("com.terra.archive", "read") => Ok(Value::Str(zip_read(text(&args, 0)?, text(&args, 1)?)?)),
+        ("com.terra.archive", "extract") => {
             zip_extract(text(&args, 0)?, text(&args, 1)?)?;
             Ok(Value::Null)
         }
-        ("com.terra.list", "list_new") => Ok(alloc(vm, HostObj::List(Vec::new()))),
-        ("com.terra.list", "list_push") => {
+        ("com.terra.list", "new") => Ok(alloc(vm, HostObj::List(Vec::new()))),
+        ("com.terra.list", "push") => {
             let h = host(&args, 0)?;
             list_push(vm, h, args.into_iter().nth(1).unwrap_or(Value::Null))
         }
-        ("com.terra.list", "list_pop") => list_pop(vm, host(&args, 0)?),
-        ("com.terra.list", "list_get") => list_get(vm, host(&args, 0)?, int(&args, 1)?),
-        ("com.terra.list", "list_set") => {
+        ("com.terra.list", "pop") => list_pop(vm, host(&args, 0)?),
+        ("com.terra.list", "get") => list_get(vm, host(&args, 0)?, int(&args, 1)?),
+        ("com.terra.list", "set") => {
             let h = host(&args, 0)?;
             let index = int(&args, 1)?;
             list_set(vm, h, index, args.into_iter().nth(2).unwrap_or(Value::Null))
         }
-        ("com.terra.list", "list_len") => Ok(Value::Int(list_of(vm, host(&args, 0)?)?.len() as i64)),
-        ("com.terra.list", "list_remove") => list_remove(vm, host(&args, 0)?, int(&args, 1)?),
-        ("com.terra.list", "list_clear") => {
+        ("com.terra.list", "len") => Ok(Value::Int(list_of(vm, host(&args, 0)?)?.len() as i64)),
+        ("com.terra.list", "remove") => list_remove(vm, host(&args, 0)?, int(&args, 1)?),
+        ("com.terra.list", "clear") => {
             list_of_mut(vm, host(&args, 0)?)?.clear();
             Ok(Value::Null)
         }
-        ("com.terra.set", "set_new") => Ok(alloc(vm, HostObj::Set(Vec::new()))),
-        ("com.terra.set", "set_add") => {
+        ("com.terra.set", "new") => Ok(alloc(vm, HostObj::Set(Vec::new()))),
+        ("com.terra.set", "add") => {
             let h = host(&args, 0)?;
             set_add(vm, h, args.into_iter().nth(1).unwrap_or(Value::Null))
         }
-        ("com.terra.set", "set_has") => set_has(vm, host(&args, 0)?, &args[1]),
-        ("com.terra.set", "set_remove") => set_remove(vm, host(&args, 0)?, &args[1]),
-        ("com.terra.set", "set_len") => Ok(Value::Int(set_of(vm, host(&args, 0)?)?.len() as i64)),
-        ("com.terra.stack", "stack_new") => Ok(alloc(vm, HostObj::Stack(Vec::new()))),
-        ("com.terra.stack", "stack_push") => {
+        ("com.terra.set", "has") => set_has(vm, host(&args, 0)?, &args[1]),
+        ("com.terra.set", "remove") => set_remove(vm, host(&args, 0)?, &args[1]),
+        ("com.terra.set", "len") => Ok(Value::Int(set_of(vm, host(&args, 0)?)?.len() as i64)),
+        ("com.terra.stack", "new") => Ok(alloc(vm, HostObj::Stack(Vec::new()))),
+        ("com.terra.stack", "push") => {
             let h = host(&args, 0)?;
             let value = args.into_iter().nth(1).unwrap_or(Value::Null);
             stack_of_mut(vm, h)?.push(value);
             Ok(Value::Null)
         }
-        ("com.terra.stack", "stack_pop") => stack_of_mut(vm, host(&args, 0)?)?.pop().ok_or_else(|| Fault::Io("empty stack".into())),
-        ("com.terra.stack", "stack_peek") => stack_of(vm, host(&args, 0)?)?.last().cloned().ok_or_else(|| Fault::Io("empty stack".into())),
-        ("com.terra.stack", "stack_len") => Ok(Value::Int(stack_of(vm, host(&args, 0)?)?.len() as i64)),
-        ("com.terra.queue", "queue_new") => Ok(alloc(vm, HostObj::Queue(VecDeque::new()))),
-        ("com.terra.queue", "queue_push") => {
+        ("com.terra.stack", "pop") => stack_of_mut(vm, host(&args, 0)?)?.pop().ok_or_else(|| Fault::Io("empty stack".into())),
+        ("com.terra.stack", "peek") => stack_of(vm, host(&args, 0)?)?.last().cloned().ok_or_else(|| Fault::Io("empty stack".into())),
+        ("com.terra.stack", "len") => Ok(Value::Int(stack_of(vm, host(&args, 0)?)?.len() as i64)),
+        ("com.terra.queue", "new") => Ok(alloc(vm, HostObj::Queue(VecDeque::new()))),
+        ("com.terra.queue", "push") => {
             let h = host(&args, 0)?;
             let value = args.into_iter().nth(1).unwrap_or(Value::Null);
             queue_of_mut(vm, h)?.push_back(value);
             Ok(Value::Null)
         }
-        ("com.terra.queue", "queue_pop") => queue_of_mut(vm, host(&args, 0)?)?.pop_front().ok_or_else(|| Fault::Io("empty queue".into())),
-        ("com.terra.queue", "queue_len") => Ok(Value::Int(queue_of(vm, host(&args, 0)?)?.len() as i64)),
-        ("com.terra.map", "map_new") => Ok(alloc(vm, HostObj::Map(Vec::new()))),
-        ("com.terra.map", "map_set") => {
+        ("com.terra.queue", "pop") => queue_of_mut(vm, host(&args, 0)?)?.pop_front().ok_or_else(|| Fault::Io("empty queue".into())),
+        ("com.terra.queue", "len") => Ok(Value::Int(queue_of(vm, host(&args, 0)?)?.len() as i64)),
+        ("com.terra.map", "new") => Ok(alloc(vm, HostObj::Map(Vec::new()))),
+        ("com.terra.map", "set") => {
             let h = host(&args, 0)?;
             let key = text(&args, 1)?.to_string();
             map_set(vm, h, &key, args.into_iter().nth(2).unwrap_or(Value::Null))
         }
-        ("com.terra.map", "map_get") => map_get(vm, host(&args, 0)?, text(&args, 1)?),
-        ("com.terra.map", "map_has") => {
+        ("com.terra.map", "get") => map_get(vm, host(&args, 0)?, text(&args, 1)?),
+        ("com.terra.map", "has") => {
             let h = host(&args, 0)?;
             let key = text(&args, 1)?;
             Ok(Value::Bool(map_of(vm, h)?.iter().any(|(k, _)| k == key)))
         }
-        ("com.terra.map", "map_remove") => {
+        ("com.terra.map", "remove") => {
             let key = text(&args, 1)?.to_string();
             map_of_mut(vm, host(&args, 0)?)?.retain(|(k, _)| k != &key);
             Ok(Value::Null)
         }
-        ("com.terra.map", "map_len") => Ok(Value::Int(map_of(vm, host(&args, 0)?)?.len() as i64)),
-        ("com.terra.map", "map_keys") => {
+        ("com.terra.map", "len") => Ok(Value::Int(map_of(vm, host(&args, 0)?)?.len() as i64)),
+        ("com.terra.map", "keys") => {
             let keys = map_of(vm, host(&args, 0)?)?.iter().map(|(k, _)| Value::Str(k.clone())).collect();
             Ok(alloc(vm, HostObj::List(keys)))
         }
-        ("com.terra.hash", "hash_sha256") => Ok(Value::Str(hex(&Sha256::digest(text(&args, 0)?.as_bytes())))),
-        ("com.terra.hash", "hash_sha1") => Ok(Value::Str(hex(&Sha1::digest(text(&args, 0)?.as_bytes())))),
-        ("com.terra.hash", "hash_md5") => Ok(Value::Str(hex(&md5::Md5::digest(text(&args, 0)?.as_bytes())))),
-        ("com.terra.hash", "hash_fnv") => Ok(Value::Str(format!("{:016x}", fnv(text(&args, 0)?)))),
-        ("com.terra.time", "time_now") => Ok(Value::Int(now_ms())),
-        ("com.terra.time", "time_format") => Ok(Value::Str(format_time(int(&args, 0)?, text(&args, 1)?))),
-        ("com.terra.time", "time_parse") => Ok(Value::Int(parse_time(text(&args, 0)?)?)),
-        ("com.terra.time", "time_parts") => Ok(Value::Str(time_parts(int(&args, 0)?).to_string())),
-        ("com.terra.time", "time_add") => Ok(Value::Int(int(&args, 0)?.saturating_add(int(&args, 1)?))),
-        ("com.terra.regex", "regex_is_match") => Ok(Value::Bool(regex(text(&args, 0)?)?.is_match(text(&args, 1)?))),
-        ("com.terra.regex", "regex_find") => Ok(Value::Str(regex(text(&args, 0)?)?.find(text(&args, 1)?).map(|m| m.as_str().to_string()).unwrap_or_default())),
-        ("com.terra.regex", "regex_find_all") => {
+        ("com.terra.hash", "sha256") => Ok(Value::Str(hex(&Sha256::digest(text(&args, 0)?.as_bytes())))),
+        ("com.terra.hash", "sha1") => Ok(Value::Str(hex(&Sha1::digest(text(&args, 0)?.as_bytes())))),
+        ("com.terra.hash", "md5") => Ok(Value::Str(hex(&md5::Md5::digest(text(&args, 0)?.as_bytes())))),
+        ("com.terra.hash", "fnv") => Ok(Value::Str(format!("{:016x}", fnv(text(&args, 0)?)))),
+        ("com.terra.time", "now") => Ok(Value::Int(now_ms())),
+        ("com.terra.time", "format") => Ok(Value::Str(format_time(int(&args, 0)?, text(&args, 1)?))),
+        ("com.terra.time", "parse") => Ok(Value::Int(parse_time(text(&args, 0)?)?)),
+        ("com.terra.time", "parts") => Ok(Value::Str(time_parts(int(&args, 0)?).to_string())),
+        ("com.terra.time", "add") => Ok(Value::Int(int(&args, 0)?.saturating_add(int(&args, 1)?))),
+        ("com.terra.regex", "is_match") => Ok(Value::Bool(regex(text(&args, 0)?)?.is_match(text(&args, 1)?))),
+        ("com.terra.regex", "find") => Ok(Value::Str(regex(text(&args, 0)?)?.find(text(&args, 1)?).map(|m| m.as_str().to_string()).unwrap_or_default())),
+        ("com.terra.regex", "find_all") => {
             let found: Vec<Json> = regex(text(&args, 0)?)?.find_iter(text(&args, 1)?).map(|m| Json::String(m.as_str().into())).collect();
             Ok(Value::Str(Json::Array(found).to_string()))
         }
-        ("com.terra.regex", "regex_replace") => Ok(Value::Str(regex(text(&args, 0)?)?.replace_all(text(&args, 1)?, text(&args, 2)?).into_owned())),
-        ("com.terra.regex", "regex_split") => {
+        ("com.terra.regex", "replace") => Ok(Value::Str(regex(text(&args, 0)?)?.replace_all(text(&args, 1)?, text(&args, 2)?).into_owned())),
+        ("com.terra.regex", "split") => {
             let parts: Vec<Json> = regex(text(&args, 0)?)?.split(text(&args, 1)?).map(|s| Json::String(s.into())).collect();
             Ok(Value::Str(Json::Array(parts).to_string()))
         }
-        ("com.terra.rand", "rand_int") => rand_int(int(&args, 0)?, int(&args, 1)?),
-        ("com.terra.rand", "rand_float") => Ok(Value::Double(with_rng(|rng| rng.gen::<f64>()))),
-        ("com.terra.rand", "rand_seed") => {
+        ("com.terra.rand", "int") => rand_int(int(&args, 0)?, int(&args, 1)?),
+        ("com.terra.rand", "float") => Ok(Value::Double(with_rng(|rng| rng.gen::<f64>()))),
+        ("com.terra.rand", "seed") => {
             *RNG.lock().unwrap() = Some(StdRng::seed_from_u64(int(&args, 0)? as u64));
             Ok(Value::Null)
         }
-        ("com.terra.codec", "b64_encode") => Ok(Value::Str(b64_encode(text(&args, 0)?.as_bytes()))),
-        ("com.terra.codec", "b64_decode") => Ok(Value::Str(String::from_utf8(b64_decode(text(&args, 0)?)?).map_err(io)?)),
+        ("com.terra.codec", "encode") => Ok(Value::Str(b64_encode(text(&args, 0)?.as_bytes()))),
+        ("com.terra.codec", "decode") => Ok(Value::Str(String::from_utf8(b64_decode(text(&args, 0)?)?).map_err(io)?)),
+        ("com.terra.ui", name) => crate::ui::dispatch(vm, name, args),
         _ => Err(Fault::Type(format!("unimplemented host {package}.{name}"))),
     }
 }
@@ -568,7 +571,7 @@ fn call_handler(vm: &Vm, handler: &str, method: &str, path: &str, body: &str) ->
     }
 }
 
-fn read_http(stream: &mut TcpStream) -> Result<(String, String, String), Fault> {
+pub(crate) fn read_http(stream: &mut TcpStream) -> Result<(String, String, String), Fault> {
     let mut buf = Vec::new();
     let mut tmp = [0u8; 1024];
     let header_end;

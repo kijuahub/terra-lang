@@ -1,0 +1,147 @@
+package com.example.ledger;
+
+use com.terra.ui;
+use com.terra.json;
+use com.terra.sqlite;
+use com.terra.fs;
+use com.terra.os;
+use com.terra.path;
+use com.terra.regex;
+use com.terra.list;
+use com.terra.set;
+
+func db_path() -> string {
+    return path.join(os.tmp(), "terra-ledger-" + to_string(os.pid()) + ".db");
+}
+
+func q(value: string) -> string {
+    return "'" + regex.replace("'", value, "''") + "'";
+}
+
+func field(form: any, name: string) -> string {
+    if (json.kind(form) != "object") {
+        return "";
+    }
+    var value = to_string(json.get(form, name));
+    if (value == "null") {
+        return "";
+    }
+    return value;
+}
+
+func snapshot(state: string) -> string {
+    var doc = json.parse(state);
+    mut action = to_string(json.get(doc, "action"));
+    if (action == "null") {
+        action = "";
+    }
+    var db = sqlite.open(db_path());
+    sqlite.exec(db, "create table if not exists accounts(id integer primary key, name text not null, email text not null, role text not null);");
+    if (regex.is_match("^del-", action)) {
+        var id = regex.find("\\d+", action);
+        if (id != "") {
+            sqlite.exec(db, "delete from accounts where id = " + id + ";");
+        }
+    }
+    if (action == "create") {
+        var form = json.get(doc, "form");
+        var name = field(form, "name");
+        var email = field(form, "email");
+        mut role = field(form, "role");
+        if (role == "") {
+            role = "Guest";
+        }
+        if (name != "" && email != "") {
+            sqlite.exec(db, "insert into accounts(name, email, role) values (" + q(name) + ", " + q(email) + ", " + q(role) + ");");
+        }
+    }
+    var have = sqlite.query(db, "select id from accounts;");
+    if (json.len(json.parse(have)) == 0) {
+        sqlite.exec(db, "insert into accounts(name, email, role) values ('Ada North', 'ada@ledger.test', 'Owner'), ('Lin Park', 'lin@ledger.test', 'Roaster');");
+    }
+    var raw = sqlite.query(db, "select id, name, email, role from accounts order by id;");
+    sqlite.close(db);
+    return raw;
+}
+
+func view(state: string) -> any {
+    var doc = json.parse(state);
+    var action = to_string(json.get(doc, "action"));
+    var form = json.get(doc, "form");
+    mut message = "";
+    if (action == "create") {
+        var name = field(form, "name");
+        var email = field(form, "email");
+        if (name == "" || email == "") {
+            message = "A name and an email, then the book can take them.";
+        } else {
+            message = name + " is on the book.";
+        }
+    } else if (regex.is_match("^del-", action)) {
+        message = "The row is gone.";
+    }
+    var people = json.parse(snapshot(state));
+    var n = json.len(people);
+    var table_rows = json.parse("[]");
+    var actions = list.new();
+    var roles = set.new();
+    mut i = 0;
+    while (i < n) {
+        var row = json.index(people, i);
+        var id = to_string(json.get(row, "id"));
+        var person = to_string(json.get(row, "name"));
+        var email = to_string(json.get(row, "email"));
+        var role = to_string(json.get(row, "role"));
+        var line = json.parse("[]");
+        json.push(line, person);
+        json.push(line, email);
+        json.push(line, role);
+        json.push(table_rows, line);
+        list.push(actions, ui.quiet("Remove " + person, "del-" + id));
+        set.add(roles, role);
+        i = i + 1;
+    }
+    var body = ui.sidebar(
+        ui.col([
+            ui.kicker("Ledger"),
+            ui.h2("The book"),
+            ui.p("A short list of the people who belong here."),
+            ui.badge("SQLite"),
+            ui.muted("Kept for this process, in a local database.")
+        ]),
+        ui.col([
+            ui.row([
+                ui.stat("People", to_string(n), "On the book"),
+                ui.stat("Roles", to_string(set.len(roles)), "Distinct")
+            ]),
+            ui.table("[\"Name\",\"Email\",\"Role\"]", json.stringify(table_rows)),
+            ui.row(actions),
+            ui.h3("Add someone"),
+            ui.form("create", [
+                ui.field("Name", "name", ""),
+                ui.field("Email", "email", ""),
+                ui.field("Role", "role", ""),
+                ui.submit("Add to the book")
+            ]),
+            ui.note(message)
+        ])
+    );
+    return ui.page("Ledger", "ledger", body, state);
+}
+
+func main(args: string[]) {
+    if (len(args) == 1 && args[0] == "check") {
+        var path = db_path();
+        if (fs.exists(path)) {
+            fs.remove(path);
+        }
+        println(snapshot("{\"action\":\"create\",\"form\":{\"name\":\"Mina\",\"email\":\"mina@ledger.test\",\"role\":\"Guest\"}}"));
+        fs.remove(path);
+        return;
+    }
+    if (len(args) < 2 || args[0] != "serve") {
+        println("usage: terra run project -- serve 8082");
+        return;
+    }
+    ui.serve(to_int(args[1]), "view");
+}

@@ -1,0 +1,8 @@
+[package]
+name = "cafe"
+package = "com.example.cafe"
+version = "0.1.0"
+compiler = "0.1.0"
+
+[tool]
+lang = "en"

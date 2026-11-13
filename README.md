@@ -62,14 +62,27 @@ func answer() -> int {
 use com.terra.fs;
 
 func main(args: string[]) {
-    fs_write_text("note.txt", "hi");
-    println(fs_read_text("note.txt"));
+    fs.write_text("note.txt", "hi");
+    println(fs.read_text("note.txt"));
 }
 ```
 
-Пакеты: `math`, `fs`, `env`, `os`, `path`, `proc`, `http`, `net`, `thread`, `json`, `xml`, `yaml`, `sqlite`, `archive`, `list`, `set`, `stack`, `queue`, `map`, `hash`, `time`, `regex`, `rand`, `codec`. Коллекции имеют тип `any`: обобщений в языке нет. HTTP — только `http://`, сервер слушает `0.0.0.0`. Каждая публичная функция описана в `docs/` на русском и английском. Каталог `docs/api.json` сверяется с таблицей `HOSTS`.
+`use com.terra.sqlite` даёт имя `sqlite`, и функция вызывается как `sqlite.exec(...)`. Полный путь `com.terra.sqlite.exec(...)` работает без `use`. Так устроены все пакеты хоста: `math`, `fs`, `env`, `os`, `path`, `proc`, `http`, `net`, `thread`, `json`, `xml`, `yaml`, `sqlite`, `archive`, `list`, `set`, `stack`, `queue`, `map`, `hash`, `time`, `regex`, `rand`, `codec`, `ui`. `com.terra.lang` по-прежнему плоский: `println`, `to_string`, `len`. Коллекции имеют тип `any`: обобщений в языке нет. HTTP — только `http://`, сервер слушает `0.0.0.0`.
 
-Примеры в `examples/`: `hello`, `cli`, `files`, `json`, `http-get`, `http-server`, `sqlite`, `threads`, `zip`, `regex`. Из каталога примера: `terra run project`. Сайт документации — каталог `docs/`. Workflow `.github/workflows/pages.yml` публикует его на GitHub Pages.
+`com.terra.ui` собирает страницу из видов (`ui.page`, `ui.hero`, `ui.table`, `ui.key`) и отдаёт её через `ui.serve`. Это HTML, который рисует сервер, и короткий браузерный сценарий для кнопок и форм. Логика остаётся в Terra.
+
+Каждая публичная функция описана в `docs/` на русском и английском. Откройте `docs/index.html`: каталог лежит в `docs/api.js` и подключается как скрипт. Workflow `.github/workflows/pages.yml` публикует каталог `docs/` на GitHub Pages.
+
+Примеры в `examples/`: `hello`, `cli`, `files`, `json`, `http-get`, `http-server`, `sqlite`, `threads`, `zip`, `regex`, `cafe`, `calculator`, `ledger`. Из каталога примера: `terra run project`. Интерфейсы:
+
+```
+cd examples\cafe
+..\..\target\debug\terra.exe run project -- serve 8080
+cd ..\calculator
+..\..\target\debug\terra.exe run project -- serve 8081
+cd ..\ledger
+..\..\target\debug\terra.exe run project -- serve 8082
+```
 
 ## Структура
 
@@ -85,8 +98,8 @@ crates/terra-project       terra.toml, реестр, build, git
 crates/terra-cli           команда terra
 crates/terra-exec          тонкий лаунчер
 stdlib/com/terra/lang      Math, Pair
-examples/                  hello, cli, files, json, http, sqlite, threads, zip, regex
-docs/                      сайт ru/en, api.json
+examples/                  hello, cli, files, json, http, sqlite, threads, zip, regex, cafe, calculator, ledger
+docs/                      сайт ru/en, index.html, api.js
 ```
 
 Стандартная библиотека подключается к каждой программе. Сторонние исходники лежат в `lib/` и импортируются через `use пакет;` или `use пакет.Имя;`.
